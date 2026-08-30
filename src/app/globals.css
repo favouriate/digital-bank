@@ -1,26 +1,344 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* =========================================================
+     CORE COLOR SYSTEM
+     ========================================================= */
+
+  --background: 0 0% 100%;
+  --foreground: 240 10% 10%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 10%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 10%;
+
+  /* Brand */
+  --primary: 276 56% 28%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 270 20% 96%;
+  --secondary-foreground: 276 45% 20%;
+
+  --muted: 240 8% 96%;
+  --muted-foreground: 240 5% 45%;
+
+  --accent: 270 30% 95%;
+  --accent-foreground: 276 56% 28%;
+
+  /* Semantic states */
+  --success: 152 60% 36%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 38 92% 50%;
+  --warning-foreground: 30 80% 15%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Surfaces */
+  --border: 240 7% 90%;
+  --input: 240 7% 88%;
+  --ring: 276 56% 28%;
+
+  /* =========================================================
+     FINANCIAL SEMANTIC COLORS
+     ========================================================= */
+
+  --income: 152 60% 36%;
+  --income-foreground: 0 0% 100%;
+
+  --expense: 0 72% 51%;
+  --expense-foreground: 0 0% 100%;
+
+  --savings: 210 70% 45%;
+  --savings-foreground: 0 0% 100%;
+
+  /* =========================================================
+     CHART COLORS
+     ========================================================= */
+
+  --chart-1: 276 56% 28%;
+  --chart-2: 152 60% 36%;
+  --chart-3: 210 70% 45%;
+  --chart-4: 38 92% 50%;
+  --chart-5: 330 65% 50%;
+
+  /* =========================================================
+     NAVIGATION / SIDEBAR
+     ========================================================= */
+
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 240 5% 30%;
+
+  --sidebar-primary: 276 56% 28%;
+  --sidebar-primary-foreground: 0 0% 100%;
+
+  --sidebar-accent: 270 30% 95%;
+  --sidebar-accent-foreground: 276 56% 28%;
+
+  --sidebar-border: 240 7% 90%;
+  --sidebar-ring: 276 56% 28%;
+
+  /* =========================================================
+     SHAPE
+     ========================================================= */
+
+  --radius: 0.75rem;
+
+  /* =========================================================
+     SPACING / LAYOUT TOKENS
+     ========================================================= */
+
+  --content-max-width: 1440px;
+
+  --page-padding-mobile: 1rem;
+  --page-padding-tablet: 1.5rem;
+  --page-padding-desktop: 2rem;
+
+  /* =========================================================
+     TYPOGRAPHY SCALE
+     ========================================================= */
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  /* Financial numbers */
+  --text-financial-sm: 1rem;
+  --text-financial-md: 1.5rem;
+  --text-financial-lg: 2rem;
+  --text-financial-xl: 2.5rem;
+
+  /* =========================================================
+     MOTION
+     ========================================================= */
+
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
+.dark {
+  --background: 240 10% 8%;
+  --foreground: 0 0% 96%;
+
+  --card: 240 10% 11%;
+  --card-foreground: 0 0% 96%;
+
+  --popover: 240 10% 11%;
+  --popover-foreground: 0 0% 96%;
+
+  --primary: 276 60% 62%;
+  --primary-foreground: 240 10% 8%;
+
+  --secondary: 260 15% 17%;
+  --secondary-foreground: 0 0% 94%;
+
+  --muted: 240 8% 16%;
+  --muted-foreground: 240 5% 65%;
+
+  --accent: 270 20% 18%;
+  --accent-foreground: 276 60% 72%;
+
+  --success: 152 55% 45%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 38 90% 55%;
+  --warning-foreground: 30 80% 10%;
+
+  --destructive: 0 65% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 240 7% 20%;
+  --input: 240 7% 23%;
+  --ring: 276 60% 62%;
+
+  --income: 152 55% 45%;
+  --expense: 0 65% 55%;
+  --savings: 210 70% 55%;
+
+  --chart-1: 276 60% 62%;
+  --chart-2: 152 55% 45%;
+  --chart-3: 210 70% 55%;
+  --chart-4: 38 90% 55%;
+  --chart-5: 330 65% 60%;
+
+  --sidebar-background: 240 10% 9%;
+  --sidebar-foreground: 240 5% 75%;
+
+  --sidebar-primary: 276 60% 62%;
+  --sidebar-primary-foreground: 240 10% 8%;
+
+  --sidebar-accent: 270 20% 18%;
+  --sidebar-accent-foreground: 276 60% 72%;
+
+  --sidebar-border: 240 7% 20%;
+  --sidebar-ring: 276 60% 62%;
+}
+
+/*
+  Tailwind v4 / shadcn require complete color values on --color-* theme
+  keys. Token values above stay as HSL channels; hsl() is applied here only.
+*/
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-income: hsl(var(--income));
+  --color-income-foreground: hsl(var(--income-foreground));
+
+  --color-expense: hsl(var(--expense));
+  --color-expense-foreground: hsl(var(--expense-foreground));
+
+  --color-savings: hsl(var(--savings));
+  --color-savings-foreground: hsl(var(--savings-foreground));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-background: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+  --text-financial-sm: var(--text-financial-sm);
+  --text-financial-md: var(--text-financial-md);
+  --text-financial-lg: var(--text-financial-lg);
+  --text-financial-xl: var(--text-financial-xl);
+
+  --container-content: var(--content-max-width);
+
+  --spacing-page-mobile: var(--page-padding-mobile);
+  --spacing-page-tablet: var(--page-padding-tablet);
+  --spacing-page-desktop: var(--page-padding-desktop);
+
+  --ease-standard: var(--ease-standard);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  *,
+  ::before,
+  ::after {
+    @apply border-border;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    @apply scroll-smooth font-sans;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.15);
+    color: hsl(var(--foreground));
+  }
+
+  input[type="number"] {
+    appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input:-webkit-autofill,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: hsl(var(--foreground));
+    box-shadow: 0 0 0 1000px hsl(var(--background)) inset;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
