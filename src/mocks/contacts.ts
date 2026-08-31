@@ -16,6 +16,20 @@ export const mockContacts: Contact[] = [
     provider: "OpenPay",
   },
   {
+    id: "contact-michael",
+    name: "Michael",
+    initials: "MI",
+    avatarUrl: null,
+    provider: "OpenPay",
+  },
+  {
+    id: "contact-sarah",
+    name: "Sarah",
+    initials: "SA",
+    avatarUrl: null,
+    provider: "OpenPay",
+  },
+  {
     id: "contact-antonia",
     name: "Antonia",
     initials: "AN",
