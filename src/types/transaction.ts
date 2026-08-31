@@ -5,6 +5,7 @@ export type Transaction = {
   description: string;
   counterparty: string;
   reference: string;
+  accountMask: string;
   amount: number;
   currency: "USD";
   status: TransactionStatus;
