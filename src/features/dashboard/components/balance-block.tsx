@@ -47,7 +47,7 @@ export function BalanceBlock({
         variant="secondary"
         nativeButton={false}
         className="h-11 min-h-11 rounded-lg"
-        render={<Link href="/wallets" />}
+        render={<Link href="/add-money" />}
       >
         <Plus className="size-4" aria-hidden="true" />
         Add Money
