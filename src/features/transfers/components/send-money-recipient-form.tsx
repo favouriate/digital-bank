@@ -14,14 +14,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTransferBanksQuery } from "../hooks/use-transfer-banks-query";
 import { useTransferDestinationsQuery } from "../hooks/use-transfer-destinations-query";
 import { useRecipientLookupQuery } from "../hooks/use-recipient-lookup-query";
-import { isValidAccountNumber } from "../schemas/account-number-schema";
+import { isValidAccountNumber, getAccountNumberMaxLength } from "../schemas/account-number-schema";
 import type {
   DestinationCountryCode,
   ResolvedRecipient,
   TransferBank,
   TransferDestination,
 } from "../types/destination";
-import { RecipientLookupError } from "../types/destination";
+import { isDestinationCountryCode, RecipientLookupError } from "../types/destination";
 
 import { BankCombobox } from "./bank-combobox";
 import { DestinationCombobox } from "./destination-combobox";
@@ -48,12 +48,7 @@ export function SendMoneyRecipientForm({
   const destinations = destinationsQuery.data ?? [];
 
   const [countryCode, setCountryCode] = useState<DestinationCountryCode | null>(
-    () =>
-      initialCountryCode === "NG" ||
-      initialCountryCode === "US" ||
-      initialCountryCode === "GB"
-        ? initialCountryCode
-        : null,
+    () => (isDestinationCountryCode(initialCountryCode) ? initialCountryCode : null),
   );
   const [bankId, setBankId] = useState<string | null>(initialBankId);
   const [accountNumber, setAccountNumber] = useState(initialAccountNumber ?? "");
@@ -157,7 +152,9 @@ export function SendMoneyRecipientForm({
             placeholder="Enter account number"
             value={accountNumber}
             disabled={countryCode === null || bankId === null}
-            maxLength={countryCode === "NG" ? 10 : countryCode === "GB" ? 8 : 17}
+            maxLength={
+              countryCode ? getAccountNumberMaxLength(countryCode) : 17
+            }
             aria-invalid={Boolean(lookupErrorMessage)}
             aria-describedby="destination-account-hint"
             onChange={(event) => {

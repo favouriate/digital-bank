@@ -1,3 +1,4 @@
+import type { CurrencyCode } from "@/types/currency";
 import type { Transaction } from "@/types/transaction";
 import type { ResolvedRecipient } from "@/features/transfers/types/destination";
 
@@ -11,7 +12,7 @@ export type AccountCard = {
 export type AccountSummary = {
   card: AccountCard;
   availableBalance: number;
-  currency: "USD";
+  currency: CurrencyCode;
   monthlyChangePercent: number;
   sourceLabel: string;
 };

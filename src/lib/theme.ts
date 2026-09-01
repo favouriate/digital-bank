@@ -1,4 +1,5 @@
 export const THEME_STORAGE_KEY = "openpay.theme";
+export const THEME_CHANGE_EVENT = "openpay.theme-change";
 
 export type ThemePreference = "light" | "dark" | "system";
 

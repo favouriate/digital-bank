@@ -24,9 +24,11 @@ export function AddMoneyCompose({ data }: AddMoneyComposeProps) {
   const methodId = useAddMoneyDraftStore((state) => state.methodId);
   const amount = useAddMoneyDraftStore((state) => state.amount);
   const amountInput = useAddMoneyDraftStore((state) => state.amountInput);
+  const currency = useAddMoneyDraftStore((state) => state.currency);
   const setMethodId = useAddMoneyDraftStore((state) => state.setMethodId);
   const setAmountInput = useAddMoneyDraftStore((state) => state.setAmountInput);
   const setParsedAmount = useAddMoneyDraftStore((state) => state.setParsedAmount);
+  const setCurrency = useAddMoneyDraftStore((state) => state.setCurrency);
   const setStep = useAddMoneyDraftStore((state) => state.setStep);
   const [error, setError] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(true);
@@ -83,11 +85,13 @@ export function AddMoneyCompose({ data }: AddMoneyComposeProps) {
           <AmountEntry
             value={amountInput}
             parsedAmount={liveAmount}
+            currency={currency}
             error={error}
             onChange={(next) => {
               setAmountInput(next);
               setError(null);
             }}
+            onCurrencyChange={setCurrency}
             onSelectQuickAmount={(next) => {
               setParsedAmount(next);
               setError(null);
@@ -108,13 +112,18 @@ export function AddMoneyCompose({ data }: AddMoneyComposeProps) {
             <ReviewCard
               method={selectedMethod}
               amount={liveAmount}
+              currency={currency}
               collapsible
               expanded={reviewOpen}
               onToggle={() => setReviewOpen((current) => !current)}
             />
           </div>
           <div className="hidden lg:block">
-            <ReviewCard method={selectedMethod} amount={liveAmount} />
+            <ReviewCard
+              method={selectedMethod}
+              amount={liveAmount}
+              currency={currency}
+            />
           </div>
           <SecurityNotice />
           <ImportantNotice />

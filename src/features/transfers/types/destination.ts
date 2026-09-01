@@ -1,6 +1,9 @@
-export type DestinationCountryCode = "NG" | "US" | "GB";
+import type { CountryCode, CurrencyCode } from "@/types/currency";
+import { COUNTRY_CODES } from "@/types/currency";
 
-export type DestinationCurrencyCode = "NGN" | "USD" | "GBP";
+export type DestinationCountryCode = CountryCode;
+
+export type DestinationCurrencyCode = CurrencyCode;
 
 export type TransferDestination = {
   countryCode: DestinationCountryCode;
@@ -32,6 +35,12 @@ export type RecipientLookupInput = {
   bankId: string;
   accountNumber: string;
 };
+
+export function isDestinationCountryCode(
+  value: string | null | undefined,
+): value is DestinationCountryCode {
+  return COUNTRY_CODES.some((code) => code === value);
+}
 
 export class RecipientLookupError extends Error {
   constructor(

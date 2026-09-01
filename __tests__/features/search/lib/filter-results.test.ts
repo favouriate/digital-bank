@@ -39,6 +39,9 @@ const transactions: Transaction[] = [
     currency: "USD",
     status: "completed",
     occurredAt: "2026-08-01T10:00:00.000Z",
+    type: "transfer",
+    direction: "outgoing",
+    bankName: "Blue Bottle",
   },
   {
     id: "t2",
@@ -50,6 +53,9 @@ const transactions: Transaction[] = [
     currency: "USD",
     status: "completed",
     occurredAt: "2026-08-02T10:00:00.000Z",
+    type: "deposit",
+    direction: "incoming",
+    bankName: "Acme Corp",
   },
 ];
 
