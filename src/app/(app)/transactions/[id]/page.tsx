@@ -1,5 +1,10 @@
-import { RoutePlaceholder } from "@/components/layout/route-placeholder";
-import { getTransactions } from "@/features/search/services/transaction-service";
+import type { Metadata } from "next";
+
+import { TransactionDetailsView } from "@/features/transactions/components/transaction-details-view";
+
+export const metadata: Metadata = {
+  title: "Transaction Details",
+};
 
 export default async function TransactionDetailPage({
   params,
@@ -7,10 +12,6 @@ export default async function TransactionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const transactions = await getTransactions();
-  const transaction = transactions.find((item) => item.id === id);
 
-  return (
-    <RoutePlaceholder title={transaction?.description ?? "Transaction"} />
-  );
+  return <TransactionDetailsView transactionId={id} />;
 }

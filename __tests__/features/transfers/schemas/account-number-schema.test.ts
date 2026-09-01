@@ -29,6 +29,14 @@ describe("createAccountNumberSchema", () => {
       "12345678901234567",
     );
   });
+
+  it("accepts Canadian, Ghanaian, and South African account numbers", () => {
+    expect(createAccountNumberSchema("CA").parse("1234567")).toBe("1234567");
+    expect(createAccountNumberSchema("GH").parse("1234567890123")).toBe(
+      "1234567890123",
+    );
+    expect(createAccountNumberSchema("ZA").parse("123456789")).toBe("123456789");
+  });
 });
 
 describe("isValidAccountNumber", () => {

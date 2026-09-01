@@ -1,7 +1,5 @@
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
+import { formatMoney } from "@/lib/currency";
+import type { CurrencyCode } from "@/types/currency";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -12,8 +10,11 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
-export function formatAddMoneyAmount(amount: number) {
-  return currencyFormatter.format(amount);
+export function formatAddMoneyAmount(
+  amount: number,
+  currency: CurrencyCode = "USD",
+) {
+  return formatMoney(amount, currency);
 }
 
 export function formatAmountInput(amount: number) {

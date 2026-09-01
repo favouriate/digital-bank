@@ -3,6 +3,7 @@
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import type { CurrencyCode } from "@/types/currency";
 import type { FundingMethod } from "../types/add-money";
 import { formatAddMoneyAmount } from "../lib/format";
 
@@ -13,6 +14,7 @@ import { ReviewCard } from "./review-card";
 type AddMoneyConfirmProps = {
   method: FundingMethod;
   amount: number;
+  currency: CurrencyCode;
   isPending: boolean;
   onBack: () => void;
   onConfirm: () => void;
@@ -21,6 +23,7 @@ type AddMoneyConfirmProps = {
 export function AddMoneyConfirm({
   method,
   amount,
+  currency,
   isPending,
   onBack,
   onConfirm,
@@ -41,7 +44,7 @@ export function AddMoneyConfirm({
           Confirm deposit
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Review {formatAddMoneyAmount(amount)} from {method.label} before you
+          Review {formatAddMoneyAmount(amount, currency)} from {method.label} before you
           confirm.
         </p>
       </div>
@@ -50,7 +53,7 @@ export function AddMoneyConfirm({
 
       <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
         <div className="flex flex-col gap-4 lg:col-span-7">
-          <ReviewCard method={method} amount={amount} />
+          <ReviewCard method={method} amount={amount} currency={currency} />
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
               type="button"

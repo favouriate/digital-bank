@@ -1,14 +1,16 @@
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
+import { formatMoney } from "@/lib/currency";
+import type { CurrencyCode } from "@/types/currency";
 
-export function formatBalance(amount: number, visible: boolean) {
+export function formatBalance(
+  amount: number,
+  visible: boolean,
+  currency: CurrencyCode = "USD",
+) {
   if (!visible) {
     return "••••••";
   }
 
-  return currencyFormatter.format(amount);
+  return formatMoney(amount, currency);
 }
 
 export function formatSignedChange(percent: number) {

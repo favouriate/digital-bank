@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import {
+  THEME_CHANGE_EVENT,
   THEME_STORAGE_KEY,
   applyTheme,
   parseThemePreference,
@@ -34,11 +35,22 @@ export function useThemePreference() {
   const [theme, setTheme] = useState<ThemePreference>("system");
 
   useEffect(() => {
-    const nextTheme = parseThemePreference(
-      window.localStorage.getItem(THEME_STORAGE_KEY),
-    );
-    setTheme(nextTheme);
-    applyTheme(nextTheme);
+    function syncFromStorage() {
+      const nextTheme = parseThemePreference(
+        window.localStorage.getItem(THEME_STORAGE_KEY),
+      );
+      setTheme(nextTheme);
+      applyTheme(nextTheme);
+    }
+
+    syncFromStorage();
+    window.addEventListener("storage", syncFromStorage);
+    window.addEventListener(THEME_CHANGE_EVENT, syncFromStorage);
+
+    return () => {
+      window.removeEventListener("storage", syncFromStorage);
+      window.removeEventListener(THEME_CHANGE_EVENT, syncFromStorage);
+    };
   }, []);
 
   useEffect(() => {
@@ -56,6 +68,7 @@ export function useThemePreference() {
     setTheme(nextTheme);
     applyTheme(nextTheme);
     window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   }
 
   return { theme, handleThemeChange };

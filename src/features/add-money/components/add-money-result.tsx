@@ -3,6 +3,7 @@ import { CircleAlert, CircleCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import type { CurrencyCode } from "@/types/currency";
 import type { FundingMethod } from "../types/add-money";
 import { formatAddMoneyAmount } from "../lib/format";
 
@@ -11,6 +12,7 @@ type AddMoneyResultProps =
       status: "success";
       method: FundingMethod;
       amount: number;
+      currency: CurrencyCode;
       onDone: () => void;
     }
   | {
@@ -28,7 +30,7 @@ export function AddMoneyResult(props: AddMoneyResultProps) {
           <CircleCheck className="size-12 text-success" aria-hidden="true" />
           <h1 className="text-2xl font-semibold tracking-tight">Money added</h1>
           <p className="text-sm text-muted-foreground">
-            {formatAddMoneyAmount(props.amount)} from {props.method.label} is now
+            {formatAddMoneyAmount(props.amount, props.currency)} from {props.method.label} is now
             available in your account.
           </p>
           <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">

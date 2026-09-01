@@ -23,6 +23,7 @@ export function AddMoneyView() {
   const methodId = useAddMoneyDraftStore((state) => state.methodId);
   const amount = useAddMoneyDraftStore((state) => state.amount);
   const amountInput = useAddMoneyDraftStore((state) => state.amountInput);
+  const currency = useAddMoneyDraftStore((state) => state.currency);
   const setStep = useAddMoneyDraftStore((state) => state.setStep);
   const setParsedAmount = useAddMoneyDraftStore((state) => state.setParsedAmount);
   const reset = useAddMoneyDraftStore((state) => state.reset);
@@ -82,6 +83,7 @@ export function AddMoneyView() {
         status="success"
         method={selectedMethod}
         amount={amount}
+        currency={currency}
         onDone={() => {
           reset();
           router.push("/");
@@ -109,6 +111,7 @@ export function AddMoneyView() {
       <AddMoneyConfirm
         method={selectedMethod}
         amount={amount}
+        currency={currency}
         isPending={mutation.isPending}
         onBack={() => setStep("compose")}
         onConfirm={() => {

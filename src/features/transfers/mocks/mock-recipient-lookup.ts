@@ -89,6 +89,33 @@ const KNOWN_ACCOUNTS: KnownAccount[] = [
     initials: "CR",
     avatarUrl: AVATAR_CARLA,
   },
+  {
+    countryCode: "CA",
+    bankId: "rbc",
+    accountNumber: "1234567",
+    id: "contact-canada-demo",
+    name: "Jordan Lee",
+    initials: "JL",
+    avatarUrl: null,
+  },
+  {
+    countryCode: "GH",
+    bankId: "gcb",
+    accountNumber: "1234567890123",
+    id: "contact-ghana-demo",
+    name: "Ama Mensah",
+    initials: "AM",
+    avatarUrl: null,
+  },
+  {
+    countryCode: "ZA",
+    bankId: "standard-bank",
+    accountNumber: "123456789",
+    id: "contact-zar-demo",
+    name: "Thabo Nkosi",
+    initials: "TN",
+    avatarUrl: null,
+  },
 ];
 
 const RECENT_RECIPIENT_IDS = [

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import type { TransactionStatus } from "@/types/transaction";
 
 const STATUS_COPY: Record<TransactionStatus, string> = {
-  completed: "Success",
+  completed: "Successful",
   pending: "Pending",
   failed: "Failed",
 };
@@ -26,7 +26,7 @@ export function TransactionStatusBadge({
   return (
     <Badge
       variant="outline"
-      className={cn("font-medium", STATUS_CLASS[status], className)}
+      className={cn("h-6 px-2.5 font-medium", STATUS_CLASS[status], className)}
     >
       {STATUS_COPY[status]}
     </Badge>

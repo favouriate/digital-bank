@@ -28,6 +28,20 @@ const INITIAL_TRANSACTIONS: Transaction[] = mockTransactions.map(
   (transaction) => ({ ...transaction }),
 );
 
+let demoPin = MOCK_TRANSFER_PIN;
+
+export function getDemoPin() {
+  return demoPin;
+}
+
+export function setDemoPin(pin: string) {
+  demoPin = pin;
+}
+
+export function resetDemoPin() {
+  demoPin = MOCK_TRANSFER_PIN;
+}
+
 function wait(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -89,7 +103,7 @@ export async function mockValidateTransfer(
 export async function mockVerifyPin(pin: string): Promise<void> {
   await wait(450);
 
-  if (pin !== MOCK_TRANSFER_PIN) {
+  if (pin !== demoPin) {
     throw new PinError();
   }
 }
@@ -113,18 +127,27 @@ export async function mockSendTransfer(
 
   const transferId = `txn-send-${Date.now()}`;
   const note = request.note.trim();
+  const created: Omit<Transaction, "status"> = {
+    id: transferId,
+    description: `Send to ${recipient.name}`,
+    counterparty: recipient.name,
+    reference: `OP-${String(Date.now()).slice(-6)}`,
+    accountMask: "**** 54215",
+    amount: -request.amount,
+    currency: "USD",
+    occurredAt: new Date().toISOString(),
+    type: "transfer",
+    direction: "outgoing",
+    bankName: "OpenPay",
+    category: "transfer",
+    note: note || undefined,
+    counterpartyEmail: recipient.email,
+  };
 
   if (request.amount === DEMO_PENDING_AMOUNT) {
     prependMockTransfer({
-      id: transferId,
-      description: `Send to ${recipient.name}`,
-      counterparty: recipient.name,
-      reference: `OP-${String(Date.now()).slice(-6)}`,
-      accountMask: "**** 54215",
-      amount: -request.amount,
-      currency: "USD",
+      ...created,
       status: "pending",
-      occurredAt: new Date().toISOString(),
     });
 
     return {
@@ -144,15 +167,8 @@ export async function mockSendTransfer(
   mockAccountSummary.availableBalance -= request.amount;
 
   prependMockTransfer({
-    id: transferId,
-    description: `Send to ${recipient.name}`,
-    counterparty: recipient.name,
-    reference: `OP-${String(Date.now()).slice(-6)}`,
-    accountMask: "**** 54215",
-    amount: -request.amount,
-    currency: "USD",
+    ...created,
     status: "completed",
-    occurredAt: new Date().toISOString(),
   });
 
   return {
@@ -171,6 +187,7 @@ export function prependMockTransfer(transaction: Transaction) {
 
 export function resetTransferMocks() {
   resetTransferRecipientMocks();
+  resetDemoPin();
   mockTransactions.splice(
     0,
     mockTransactions.length,

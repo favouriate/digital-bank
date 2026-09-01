@@ -44,6 +44,10 @@ describe("mockSendTransfer", () => {
     });
     expect(mockAccountSummary.availableBalance).toBe(originalBalance - 100);
     expect(mockTransactions[0]?.counterparty).toBe("Astrid Hayes");
+    expect(mockTransactions[0]?.note).toBe("Lunch");
+    expect(mockTransactions[0]?.counterpartyEmail).toBe(
+      "astrid.hayes@example.com",
+    );
   });
 
   it("rejects the demo failure amount without changing the balance", async () => {

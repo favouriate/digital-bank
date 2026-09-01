@@ -1,17 +1,11 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { CurrencySelect } from "@/components/currency-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { CurrencyCode } from "@/types/currency";
 
 import { formatAddMoneyAmount } from "../lib/format";
 import {
@@ -23,16 +17,20 @@ import {
 type AmountEntryProps = {
   value: string;
   parsedAmount: number | null;
+  currency: CurrencyCode;
   error: string | null;
   onChange: (value: string) => void;
+  onCurrencyChange: (currency: CurrencyCode) => void;
   onSelectQuickAmount: (amount: number) => void;
 };
 
 export function AmountEntry({
   value,
   parsedAmount,
+  currency,
   error,
   onChange,
+  onCurrencyChange,
   onSelectQuickAmount,
 }: AmountEntryProps) {
   return (
@@ -47,29 +45,20 @@ export function AmountEntry({
             "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
         )}
       >
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-12 min-h-11 shrink-0 gap-1 px-2 font-semibold"
-              />
-            }
-          >
-            USD
-            <ChevronDown className="size-4" aria-hidden="true" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem>USD</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <CurrencySelect
+          value={currency}
+          onChange={onCurrencyChange}
+          triggerClassName="h-12 min-h-11 shrink-0 gap-1 px-2 font-semibold"
+          ariaLabel={`Add money currency ${currency}. Change currency`}
+        />
         <Input
           id="add-money-amount"
           inputMode="decimal"
           value={value}
           aria-invalid={!!error}
-          aria-describedby={error ? "add-money-amount-error" : "add-money-amount-hint"}
+          aria-describedby={
+            error ? "add-money-amount-error" : "add-money-amount-hint"
+          }
           className="h-14 min-h-11 border-0 bg-transparent text-right text-2xl font-semibold shadow-none focus:ring-0 focus-visible:ring-0 dark:bg-transparent"
           onChange={(event) => onChange(event.target.value)}
         />
@@ -84,8 +73,8 @@ export function AmountEntry({
         </p>
       ) : (
         <p id="add-money-amount-hint" className="mt-2 text-sm text-muted-foreground">
-          Min. {formatAddMoneyAmount(MIN_ADD_MONEY_AMOUNT)} • Max.{" "}
-          {formatAddMoneyAmount(MAX_ADD_MONEY_AMOUNT)}
+          Min. {formatAddMoneyAmount(MIN_ADD_MONEY_AMOUNT, currency)} • Max.{" "}
+          {formatAddMoneyAmount(MAX_ADD_MONEY_AMOUNT, currency)}
         </p>
       )}
       <div className="mt-3 flex flex-wrap gap-2">
@@ -101,7 +90,7 @@ export function AmountEntry({
               aria-pressed={selected}
               onClick={() => onSelectQuickAmount(amount)}
             >
-              {formatAddMoneyAmount(amount)}
+              {formatAddMoneyAmount(amount, currency)}
             </Button>
           );
         })}

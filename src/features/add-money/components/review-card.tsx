@@ -2,6 +2,7 @@ import { ChevronDown, Info } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import type { CurrencyCode } from "@/types/currency";
 import type { FundingMethod } from "../types/add-money";
 
 import { formatAddMoneyAmount } from "../lib/format";
@@ -10,6 +11,7 @@ import { FundingMethodMark } from "./funding-method-mark";
 type ReviewCardProps = {
   method: FundingMethod | null;
   amount: number | null;
+  currency?: CurrencyCode;
   collapsible?: boolean;
   expanded?: boolean;
   onToggle?: () => void;
@@ -18,6 +20,7 @@ type ReviewCardProps = {
 export function ReviewCard({
   method,
   amount,
+  currency = "USD",
   collapsible = false,
   expanded = true,
   onToggle,
@@ -65,7 +68,7 @@ export function ReviewCard({
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">Amount</p>
             <p className="text-sm font-medium">
-              {amount ? formatAddMoneyAmount(amount) : "—"}
+              {amount ? formatAddMoneyAmount(amount, currency) : "—"}
             </p>
           </div>
           <div className="flex items-center justify-between gap-3">
@@ -81,7 +84,7 @@ export function ReviewCard({
               <p className="text-xs text-muted-foreground">You will receive</p>
             </div>
             <p className="text-financial-md font-semibold text-primary">
-              {formatAddMoneyAmount(total)}
+              {formatAddMoneyAmount(total, currency)}
             </p>
           </div>
         </CardContent>
