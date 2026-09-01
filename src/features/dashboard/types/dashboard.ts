@@ -1,5 +1,5 @@
-import type { Contact } from "@/types/contact";
 import type { Transaction } from "@/types/transaction";
+import type { ResolvedRecipient } from "@/features/transfers/types/destination";
 
 export type AccountCard = {
   holderName: string;
@@ -12,6 +12,7 @@ export type AccountSummary = {
   card: AccountCard;
   availableBalance: number;
   currency: "USD";
+  monthlyChangePercent: number;
   sourceLabel: string;
 };
 
@@ -29,9 +30,9 @@ export type MoneyFlowSeries = {
 };
 
 export type DashboardData = {
+  greetingName: string;
   account: AccountSummary;
-  moneyFlow: MoneyFlowSeries;
-  recentContacts: Contact[];
+  balanceTrend: number[];
+  recentRecipients: ResolvedRecipient[];
   recentTransactions: Transaction[];
-  recipientCount: number;
 };

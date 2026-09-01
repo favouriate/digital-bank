@@ -1,102 +1,100 @@
 import Link from "next/link";
+import {
+  ArrowDownToLine,
+  Landmark,
+  Send,
+} from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TransactionStatusBadge } from "@/features/transactions/components/transaction-status-badge";
-import { formatAmount, formatTransactionDate } from "@/features/search/lib/format";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { formatAmount } from "@/features/search/lib/format";
 import { cn } from "@/lib/utils";
 import type { Transaction } from "@/types/transaction";
 
+import { formatDashboardTimestamp } from "../lib/format-activity-time";
+
 type RecentTransactionsProps = {
   transactions: Transaction[];
-  variant: "desktop" | "mobile";
 };
 
-function TransactionIcon({ transaction }: { transaction: Transaction }) {
-  return (
-    <Avatar>
-      <AvatarFallback
-        className={cn(
-          transaction.counterparty === "Bitcoin" && "bg-warning/15 text-warning",
-          transaction.counterparty === "PayPal" && "bg-primary/10 text-primary",
-        )}
-      >
-        {transaction.counterparty.slice(0, 2).toUpperCase()}
-      </AvatarFallback>
-    </Avatar>
-  );
+function TransactionTypeIcon({ transaction }: { transaction: Transaction }) {
+  const className = "size-4";
+
+  if (transaction.amount > 0) {
+    return <ArrowDownToLine className={className} aria-hidden="true" />;
+  }
+
+  if (
+    transaction.counterparty.toLowerCase().includes("electric") ||
+    transaction.description.toLowerCase().includes("bill")
+  ) {
+    return <Landmark className={className} aria-hidden="true" />;
+  }
+
+  return <Send className={className} aria-hidden="true" />;
 }
 
-function TransactionRow({
-  transaction,
-  variant,
-}: {
-  transaction: Transaction;
-  variant: "desktop" | "mobile";
-}) {
-  const amountClass =
-    transaction.amount < 0 ? "text-destructive" : "text-success";
+function TransactionRow({ transaction }: { transaction: Transaction }) {
+  const isCredit = transaction.amount > 0;
+  const amountClass = isCredit ? "text-success" : "text-foreground";
 
   return (
     <Link
       href={`/transactions/${transaction.id}`}
-      className={cn(
-        "grid min-h-11 items-center gap-3 rounded-lg px-1 py-3 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/20",
-        variant === "desktop"
-          ? "grid-cols-[auto_minmax(0,1.4fr)_minmax(0,1fr)_auto_auto]"
-          : "grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-[auto_auto]",
-      )}
+      className="grid min-h-11 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-1 py-3 transition-colors hover:bg-muted/60 focus-visible:ring-offset-0"
     >
-      <div className={variant === "mobile" ? "row-span-2 self-center" : undefined}>
-        <TransactionIcon transaction={transaction} />
-      </div>
+      <span
+        className={cn(
+          "flex size-10 items-center justify-center rounded-full",
+          isCredit ? "bg-success/10 text-success" : "bg-primary/10 text-primary",
+        )}
+      >
+        <TransactionTypeIcon transaction={transaction} />
+      </span>
       <div className="min-w-0">
         <p className="truncate font-medium text-foreground">
           {transaction.description}
         </p>
         <p className="truncate text-xs text-muted-foreground">
-          {formatTransactionDate(transaction.occurredAt)}
-          {variant === "mobile" ? ` · ${transaction.accountMask}` : null}
+          {formatDashboardTimestamp(transaction.occurredAt)}
         </p>
       </div>
-      {variant === "desktop" ? (
-        <p className="hidden truncate text-sm text-muted-foreground lg:block">
-          {transaction.accountMask}
+      <div className="text-right">
+        <p className={cn("text-sm font-semibold", amountClass)}>
+          {formatAmount(transaction.amount)}
         </p>
-      ) : null}
-      <p className={cn("text-right text-sm font-semibold", amountClass)}>
-        {formatAmount(transaction.amount)}
-      </p>
-      <div
-        className={cn(
-          variant === "mobile" && "col-start-3 row-start-2 justify-self-end",
-        )}
-      >
-        <TransactionStatusBadge status={transaction.status} />
+        <p className="text-xs text-muted-foreground">{transaction.currency}</p>
       </div>
     </Link>
   );
 }
 
-export function RecentTransactions({
-  transactions,
-  variant,
-}: RecentTransactionsProps) {
+export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3">
-        <CardTitle>Recent Transactions</CardTitle>
-        <Link
-          href="/transactions"
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          View all
-        </Link>
+    <Card className="rounded-2xl">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">
+          Recent Transactions
+        </CardTitle>
+        <CardAction>
+          <Link
+            href="/transactions"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            View all
+          </Link>
+        </CardAction>
       </CardHeader>
       <CardContent>
         {transactions.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No recent transactions yet. Your recent activity will appear here.
+            No recent transactions yet.
           </p>
         ) : (
           <ul>
@@ -105,12 +103,22 @@ export function RecentTransactions({
                 key={transaction.id}
                 className="border-b border-border last:border-b-0"
               >
-                <TransactionRow transaction={transaction} variant={variant} />
+                <TransactionRow transaction={transaction} />
               </li>
             ))}
           </ul>
         )}
       </CardContent>
+      {transactions.length > 0 ? (
+        <CardFooter className="justify-center border-0 bg-transparent">
+          <Link
+            href="/transactions"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            View all transactions →
+          </Link>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

@@ -13,6 +13,7 @@ export function NotificationEntry({
   className,
 }: NotificationEntryProps) {
   const hasUnread = unreadCount > 0;
+  const badgeLabel = unreadCount > 9 ? "9+" : String(unreadCount);
 
   return (
     <Button
@@ -24,14 +25,16 @@ export function NotificationEntry({
           ? `Notifications, ${unreadCount} unread`
           : "Notifications"
       }
-      className={cn("relative size-11 lg:size-9", className)}
+      className={cn("relative size-9", className)}
     >
-      <Bell className="size-5" aria-hidden="true" />
+      <Bell className="size-4" aria-hidden="true" />
       {hasUnread ? (
         <span
           aria-hidden="true"
-          className="absolute top-2 right-2 size-2 rounded-full bg-primary ring-2 ring-background lg:top-1.5 lg:right-1.5"
-        />
+          className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground"
+        >
+          {badgeLabel}
+        </span>
       ) : null}
     </Button>
   );

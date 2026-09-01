@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 
-import { DashboardDesktop } from "./dashboard-desktop";
+import { DashboardContent } from "./dashboard-content";
 import { DashboardError } from "./dashboard-error";
-import { DashboardMobile } from "./dashboard-mobile";
 import { DashboardSkeleton } from "./dashboard-skeleton";
 import { useDashboardQuery } from "../hooks/use-dashboard-query";
 
@@ -21,17 +20,10 @@ export function DashboardView() {
   }
 
   return (
-    <>
-      <DashboardDesktop
-        data={dashboardQuery.data}
-        balanceVisible={balanceVisible}
-        onToggleVisibility={() => setBalanceVisible((current) => !current)}
-      />
-      <DashboardMobile
-        data={dashboardQuery.data}
-        balanceVisible={balanceVisible}
-        onToggleVisibility={() => setBalanceVisible((current) => !current)}
-      />
-    </>
+    <DashboardContent
+      data={dashboardQuery.data}
+      balanceVisible={balanceVisible}
+      onToggleVisibility={() => setBalanceVisible((current) => !current)}
+    />
   );
 }

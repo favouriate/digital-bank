@@ -19,7 +19,7 @@ export function DesktopSidebarTrigger({ className }: { className?: string }) {
       aria-label={label}
       aria-expanded={state === "expanded"}
       onClick={toggleSidebar}
-      className={cn("hidden size-9 lg:inline-flex", className)}
+      className={cn("hidden size-8 lg:inline-flex", className)}
     >
       <PanelLeftIcon className="size-5" aria-hidden="true" />
     </Button>

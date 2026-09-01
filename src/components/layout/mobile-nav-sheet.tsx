@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Menu } from "lucide-react";
 
 import { AppLogo } from "@/components/layout/app-logo";
 import { NavLink } from "@/components/layout/nav-link";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -28,16 +26,14 @@ export function MobileNavSheet({ notifications }: MobileNavSheetProps) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="icon"
             aria-label="Open menu"
-            className="size-11 lg:hidden"
+            className="inline-flex items-center rounded-lg text-foreground lg:hidden"
           />
         }
       >
-        <Menu className="size-5" aria-hidden="true" />
+        <AppLogo href={null} className="gap-2 [&_span:first-child]:size-7" />
       </SheetTrigger>
       <SheetContent side="left" className="w-72 bg-sidebar p-0">
         <SheetHeader className="border-b border-sidebar-border px-5 py-5">

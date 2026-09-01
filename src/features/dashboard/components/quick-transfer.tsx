@@ -1,197 +1,118 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { FileText, LayoutGrid, ArrowDownLeft, Plus, Send } from "lucide-react";
+import { Plus } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { CountryFlag } from "@/features/transfers/components/country-flag";
+import type { ResolvedRecipient } from "@/features/transfers/types/destination";
 import { cn } from "@/lib/utils";
-import type { Contact } from "@/types/contact";
 
 import { useStartTransfer } from "../hooks/use-start-transfer";
-import { formatBalance } from "../lib/format-balance";
-import { amountSchema } from "../schemas/amount-schema";
-import type { AccountSummary } from "../types/dashboard";
 
 type QuickTransferProps = {
-  account: AccountSummary;
-  contacts: Contact[];
-  balanceVisible: boolean;
-  variant: "desktop" | "mobile";
+  recipients: ResolvedRecipient[];
 };
 
-const desktopActions = [
-  { href: "/transfers", label: "Send", icon: Send },
-  { href: "/wallets", label: "Receive", icon: ArrowDownLeft },
-  { href: "/invoices", label: "Invoicing", icon: FileText },
-  { href: "/activity", label: "More", icon: LayoutGrid },
-] as const;
+const itemClassName =
+  "flex min-h-11 w-[6.25rem] flex-col items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-card lg:w-24";
 
-export function QuickTransfer({
-  account,
-  contacts,
-  balanceVisible,
-  variant,
-}: QuickTransferProps) {
+const avatarClassName = "size-14 after:hidden lg:size-12";
+
+export function QuickTransfer({ recipients }: QuickTransferProps) {
   const startTransfer = useStartTransfer();
-  const [amount, setAmount] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const people = contacts.slice(0, 4);
 
-  function continueWith(contact?: Contact) {
-    const parsed = amount.trim() ? amountSchema.safeParse(amount) : null;
-
-    if (parsed && !parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Enter a valid amount");
-      return;
-    }
-
-    startTransfer({
-      recipientId: contact?.id ?? null,
-      amount: parsed?.data ?? null,
-    });
-  }
-
-  if (variant === "mobile") {
-    return (
-      <section aria-labelledby="quick-transfer-heading">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 id="quick-transfer-heading" className="text-base font-semibold">
-            Quick Transfer
-          </h2>
+  return (
+    <Card className="rounded-2xl">
+      <CardHeader className="gap-1">
+        <CardTitle className="text-base font-semibold lg:text-lg">
+          Quick Transfer
+        </CardTitle>
+        <CardAction>
           <Link
             href="/transfers"
-            className="text-sm font-medium text-primary hover:underline"
+            className="rounded-sm text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/50"
           >
-            See all
+            View all
           </Link>
-        </div>
-        {people.length === 0 ? (
+        </CardAction>
+        <CardDescription className="text-xs lg:text-sm">
+          Send money to your recent contacts
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {recipients.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No recent contacts. Recipients you send money to will appear here.
+            No recent recipients yet.
           </p>
         ) : (
-          <ul className="flex gap-4 overflow-x-auto pb-1">
-            {people.map((contact) => (
-              <li key={contact.id} className="shrink-0">
+          <ul className="flex gap-6 overflow-x-auto pb-1 lg:justify-between lg:gap-4 lg:overflow-x-visible">
+            {recipients.map((recipient) => (
+              <li key={recipient.id} className="shrink-0">
                 <button
                   type="button"
-                  className="flex min-h-11 w-16 flex-col items-center gap-2"
-                  aria-label={`Send money to ${contact.name}`}
-                  onClick={() => continueWith(contact)}
+                  className={itemClassName}
+                  aria-label={`Send money to ${recipient.name}`}
+                  onClick={() =>
+                    startTransfer({ resolvedRecipient: recipient })
+                  }
                 >
-                  <Avatar>
-                    <AvatarFallback>{contact.initials}</AvatarFallback>
-                  </Avatar>
-                  <span className="w-full truncate text-center text-xs font-medium">
-                    {contact.name.split(" ")[0]}
+                  <span className="relative">
+                    <Avatar size="lg" className={avatarClassName}>
+                      {recipient.avatarUrl ? (
+                        <AvatarImage src={recipient.avatarUrl} alt="" />
+                      ) : null}
+                      <AvatarFallback>{recipient.initials}</AvatarFallback>
+                    </Avatar>
+                    <span className="absolute -right-0.5 -bottom-0.5 rounded-full bg-card p-0.5">
+                      <CountryFlag
+                        countryCode={recipient.countryCode}
+                        className="size-4 lg:size-[1.125rem]"
+                        size={18}
+                      />
+                    </span>
+                  </span>
+                  <span className="w-full space-y-0.5 text-center">
+                    <span className="block truncate text-[13px] font-semibold text-foreground lg:text-sm">
+                      {recipient.name}
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {recipient.bankName}
+                    </span>
                   </span>
                 </button>
               </li>
             ))}
             <li className="shrink-0">
-              <Link
-                href="/transfers"
-                aria-label="See all recipients"
-                className="flex min-h-11 w-16 flex-col items-center gap-2"
+              <button
+                type="button"
+                className={itemClassName}
+                aria-label="Add a new recipient"
+                onClick={() => startTransfer({ resolvedRecipient: null })}
               >
-                <span className="flex size-8 items-center justify-center rounded-full border border-dashed border-border">
-                  <Plus className="size-4" aria-hidden="true" />
+                <span
+                  className={cn(
+                    "flex items-center justify-center rounded-full border-2 border-dashed border-primary text-primary",
+                    avatarClassName,
+                  )}
+                >
+                  <Plus className="size-5" aria-hidden="true" />
                 </span>
-                <span className="text-xs font-medium">Add</span>
-              </Link>
+                <span className="text-[13px] font-semibold text-primary lg:text-sm">
+                  Add New
+                </span>
+              </button>
             </li>
           </ul>
         )}
-      </section>
-    );
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Quick Transfer</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="flex items-center justify-between text-sm">
-          <p className="font-medium">{account.sourceLabel}</p>
-          <p className="text-muted-foreground">
-            {formatBalance(account.availableBalance, balanceVisible)}
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="quick-transfer-amount">Enter amount</Label>
-          <div className="relative">
-            <Input
-              id="quick-transfer-amount"
-              inputMode="decimal"
-              placeholder="$0.00"
-              value={amount}
-              aria-invalid={!!error}
-              className="h-12 min-h-11 pr-24 font-semibold"
-              onChange={(event) => {
-                setAmount(event.target.value);
-                setError(null);
-              }}
-            />
-            <div className="absolute top-1/2 right-2 flex -translate-y-1/2">
-              {people.slice(0, 2).map((contact, index) => (
-                <Avatar
-                  key={contact.id}
-                  size="sm"
-                  className={cn(index > 0 && "-ml-2")}
-                >
-                  <AvatarFallback>{contact.initials}</AvatarFallback>
-                </Avatar>
-              ))}
-            </div>
-          </div>
-          {error ? (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="grid grid-cols-4 gap-2">
-          {desktopActions.map((action) => {
-            const Icon = action.icon;
-            const isSend = action.href === "/transfers";
-
-            if (isSend) {
-              return (
-                <Button
-                  key={action.label}
-                  type="button"
-                  variant="outline"
-                  className="h-auto min-h-11 flex-col gap-1 py-2"
-                  onClick={() => continueWith(people[0])}
-                >
-                  <Icon className="size-4" aria-hidden="true" />
-                  <span className="text-xs">{action.label}</span>
-                </Button>
-              );
-            }
-
-            return (
-              <Button
-                key={action.label}
-                variant="outline"
-                nativeButton={false}
-                className="h-auto min-h-11 flex-col gap-1 py-2"
-                render={<Link href={action.href} />}
-              >
-                <Icon className="size-4" aria-hidden="true" />
-                <span className="text-xs">{action.label}</span>
-              </Button>
-            );
-          })}
-        </div>
       </CardContent>
     </Card>
   );

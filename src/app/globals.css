@@ -86,6 +86,15 @@
   --sidebar-ring: 276 56% 28%;
 
   /* =========================================================
+     TOTAL BALANCE CARD
+     ========================================================= */
+
+  --balance-from: 276 62% 46%;
+  --balance-to: 265 68% 28%;
+  --balance-foreground: 0 0% 100%;
+  --balance-trend: 145 62% 78%;
+
+  /* =========================================================
      SHAPE
      ========================================================= */
 
@@ -187,6 +196,11 @@
 
   --sidebar-border: 240 7% 20%;
   --sidebar-ring: 276 60% 62%;
+
+  --balance-from: 276 58% 48%;
+  --balance-to: 265 62% 32%;
+  --balance-foreground: 0 0% 100%;
+  --balance-trend: 145 58% 76%;
 }
 
 /*
@@ -252,6 +266,11 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --color-balance-from: hsl(var(--balance-from));
+  --color-balance-to: hsl(var(--balance-to));
+  --color-balance-foreground: hsl(var(--balance-foreground));
+  --color-balance-trend: hsl(var(--balance-trend));
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);

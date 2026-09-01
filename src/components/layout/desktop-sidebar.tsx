@@ -29,7 +29,7 @@ export function DesktopSidebar({ notifications }: DesktopSidebarProps) {
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
-      <SidebarHeader className="px-5 py-6 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
+      <SidebarHeader className="px-4 py-5 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-2">
         <AppLogo className="group-data-[collapsible=icon]:justify-center" />
       </SidebarHeader>
 
@@ -37,7 +37,7 @@ export function DesktopSidebar({ notifications }: DesktopSidebarProps) {
         <SidebarGroup className="px-3">
           <SidebarGroupContent>
             <nav aria-label="Primary">
-              <SidebarMenu className="gap-1">
+              <SidebarMenu className="gap-1.5">
                 {primaryItems.map((item) => (
                   <SidebarNavItem
                     key={item.id}
@@ -55,9 +55,9 @@ export function DesktopSidebar({ notifications }: DesktopSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="px-3 pb-6">
+      <SidebarFooter className="px-3 pb-5">
         <nav aria-label="Secondary">
-          <SidebarMenu className="gap-1">
+          <SidebarMenu className="gap-1.5">
             {footerItems.map((item) => (
               <SidebarNavItem key={item.id} item={item} />
             ))}

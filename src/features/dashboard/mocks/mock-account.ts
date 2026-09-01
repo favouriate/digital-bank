@@ -9,8 +9,13 @@ export const mockAccountSummary: AccountSummary = {
   },
   availableBalance: 10680,
   currency: "USD",
+  monthlyChangePercent: 4.8,
   sourceLabel: "Debit",
 };
+
+export const mockBalanceTrend = [
+  9200, 9450, 9100, 9800, 10120, 9980, 10340, 10680,
+];
 
 export const mockMoneyFlow: MoneyFlowSeries = {
   periodLabel: "Week",
