@@ -22,7 +22,7 @@ export function AppShell({ children }: AppShellProps) {
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader user={user} notifications={notifications} />
         <PageContainer>
-          <main className="flex-1 pt-6">{children}</main>
+          <main className="flex-1 pt-4">{children}</main>
         </PageContainer>
         <MobileNavigation />
       </div>

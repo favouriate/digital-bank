@@ -1,5 +1,11 @@
-import { RoutePlaceholder } from "@/components/layout/route-placeholder";
+import type { Metadata } from "next";
+
+import { SendMoneyView } from "@/features/transfers/components/send-money-view";
+
+export const metadata: Metadata = {
+  title: "Send Money",
+};
 
 export default function TransfersPage() {
-  return <RoutePlaceholder title="Transfer" />;
+  return <SendMoneyView />;
 }

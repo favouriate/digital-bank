@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowDownLeft, ArrowUpRight, Search } from "lucide-react";
 
@@ -40,13 +40,36 @@ const itemClassName =
 
 type GlobalSearchProps = {
   className?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
 };
 
-export function GlobalSearch({ className }: GlobalSearchProps) {
+export function GlobalSearch({
+  className,
+  open: openProp,
+  onOpenChange,
+  showTrigger = true,
+}: GlobalSearchProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [query, setQuery] = useState("");
   const results = useSearchResults(query);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : uncontrolledOpen;
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!isControlled) {
+        setUncontrolledOpen(nextOpen);
+      }
+      onOpenChange?.(nextOpen);
+      if (!nextOpen) {
+        setQuery("");
+      }
+    },
+    [isControlled, onOpenChange],
+  );
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -60,19 +83,12 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
 
       event.preventDefault();
       event.stopPropagation();
-      setOpen((current) => !current);
+      handleOpenChange(!open);
     }
 
     window.addEventListener("keydown", onKeyDown, true);
     return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, []);
-
-  function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
-    if (!nextOpen) {
-      setQuery("");
-    }
-  }
+  }, [handleOpenChange, open]);
 
   function navigateTo(href: string) {
     handleOpenChange(false);
@@ -81,19 +97,21 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger
-        render={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label="Search"
-            className={cn("size-11 lg:size-9", className)}
-          />
-        }
-      >
-        <Search className="size-5" aria-hidden="true" />
-      </DialogTrigger>
+      {showTrigger ? (
+        <DialogTrigger
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Search"
+              className={cn("size-11 lg:size-9", className)}
+            />
+          }
+        >
+          <Search className="size-5" aria-hidden="true" />
+        </DialogTrigger>
+      ) : null}
       <DialogContent
         showCloseButton={false}
         className={cn(

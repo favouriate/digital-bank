@@ -1,8 +1,9 @@
-import { mockContacts } from "@/mocks/contacts";
+import { mockUser } from "@/mocks/user";
 import { mockTransactions } from "@/mocks/transactions";
+import { getMockRecentRecipients } from "@/features/transfers/mocks/mock-recipient-lookup";
 
 import type { DashboardData } from "../types/dashboard";
-import { mockAccountSummary, mockMoneyFlow } from "./mock-account";
+import { mockAccountSummary, mockBalanceTrend } from "./mock-account";
 
 function wait(ms: number) {
   return new Promise((resolve) => {
@@ -15,13 +16,11 @@ const RECENT_TRANSACTION_COUNT = 3;
 export async function mockGetDashboard(): Promise<DashboardData> {
   await wait(450);
 
-  const people = mockContacts.filter((contact) => contact.provider === "OpenPay");
-
   return {
+    greetingName: mockUser.firstName,
     account: mockAccountSummary,
-    moneyFlow: mockMoneyFlow,
-    recentContacts: people,
+    balanceTrend: mockBalanceTrend,
+    recentRecipients: getMockRecentRecipients().slice(0, 3),
     recentTransactions: mockTransactions.slice(0, RECENT_TRANSACTION_COUNT),
-    recipientCount: people.length,
   };
 }

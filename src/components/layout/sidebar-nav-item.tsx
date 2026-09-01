@@ -29,7 +29,7 @@ export function SidebarNavItem({ item, badgeCount }: SidebarNavItemProps) {
         isActive={active}
         tooltip={item.label}
         aria-current={active ? "page" : undefined}
-        className="relative min-h-11 rounded-lg px-3 font-medium [&_svg]:size-5 group-data-[collapsible=icon]:size-11! group-data-[collapsible=icon]:p-2! data-active:before:absolute data-active:before:inset-y-1.5 data-active:before:-left-3 data-active:before:w-1 data-active:before:rounded-full data-active:before:bg-primary group-data-[collapsible=icon]:data-active:before:hidden"
+        className="h-11 min-h-11 rounded-xl px-3 text-sm font-medium [&_svg]:size-5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-11! group-data-[collapsible=icon]:p-2! data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground data-active:hover:bg-sidebar-primary data-active:hover:text-sidebar-primary-foreground"
       >
         <Icon aria-hidden="true" />
         <span className="group-data-[collapsible=icon]:sr-only">{item.label}</span>

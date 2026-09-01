@@ -1,49 +1,131 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import {
+  THEME_STORAGE_KEY,
+  applyTheme,
+  parseThemePreference,
+  type ThemePreference,
+} from "@/lib/theme";
 
-const THEME_STORAGE_KEY = "openpay.theme";
+type ThemeToggleProps = {
+  className?: string;
+  compact?: boolean;
+};
 
-type Theme = "light" | "dark";
+const OPTIONS: { value: ThemePreference; label: string }[] = [
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
+];
 
-function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle("dark", theme === "dark");
-}
-
-export function ThemeToggle({ className }: { className?: string }) {
-  const [theme, setTheme] = useState<Theme>("light");
+export function useThemePreference() {
+  const [theme, setTheme] = useState<ThemePreference>("system");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    const nextTheme: Theme = stored === "dark" ? "dark" : "light";
+    const nextTheme = parseThemePreference(
+      window.localStorage.getItem(THEME_STORAGE_KEY),
+    );
     setTheme(nextTheme);
     applyTheme(nextTheme);
   }, []);
 
-  function toggleTheme() {
-    const nextTheme: Theme = theme === "dark" ? "light" : "dark";
+  useEffect(() => {
+    if (theme !== "system") {
+      return;
+    }
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => applyTheme("system");
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, [theme]);
+
+  function handleThemeChange(nextTheme: ThemePreference) {
     setTheme(nextTheme);
     applyTheme(nextTheme);
     window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
   }
 
+  return { theme, handleThemeChange };
+}
+
+type ThemeMenuItemsProps = {
+  theme: ThemePreference;
+  onThemeChange: (theme: ThemePreference) => void;
+};
+
+export function ThemeMenuItems({ theme, onThemeChange }: ThemeMenuItemsProps) {
   return (
-    <Button
-      type="button"
-      variant="outline"
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      onClick={toggleTheme}
-      className={cn("h-11 min-h-11 gap-2 rounded-lg px-2.5", className)}
+    <DropdownMenuRadioGroup
+      value={theme}
+      onValueChange={(value) => {
+        if (value === "light" || value === "dark" || value === "system") {
+          onThemeChange(value);
+        }
+      }}
     >
-      <Sun className="size-4 dark:hidden" aria-hidden="true" />
-      <Moon className="hidden size-4 dark:block" aria-hidden="true" />
-      <span className="sr-only">
-        {theme === "dark" ? "Dark mode" : "Light mode"}
-      </span>
-    </Button>
+      {OPTIONS.map((option) => (
+        <DropdownMenuRadioItem key={option.value} value={option.value}>
+          {option.value === "light" ? (
+            <Sun className="size-4" aria-hidden="true" />
+          ) : null}
+          {option.value === "dark" ? (
+            <Moon className="size-4" aria-hidden="true" />
+          ) : null}
+          {option.value === "system" ? (
+            <Monitor className="size-4" aria-hidden="true" />
+          ) : null}
+          {option.label}
+        </DropdownMenuRadioItem>
+      ))}
+    </DropdownMenuRadioGroup>
+  );
+}
+
+export function ThemeToggle({ className, compact = false }: ThemeToggleProps) {
+  const { theme, handleThemeChange } = useThemePreference();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            type="button"
+            variant={compact ? "ghost" : "outline"}
+            size={compact ? "icon" : "default"}
+            aria-label="Color theme"
+            className={cn(
+              compact
+                ? "size-9"
+                : "h-11 min-h-11 gap-2 rounded-lg px-2.5",
+              className,
+            )}
+          />
+        }
+      >
+        <Sun className="size-4 dark:hidden" aria-hidden="true" />
+        <Moon className="hidden size-4 dark:block" aria-hidden="true" />
+        {compact ? null : (
+          <span className="text-sm font-medium">
+            {OPTIONS.find((option) => option.value === theme)?.label ?? "System"}
+          </span>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-40">
+        <ThemeMenuItems theme={theme} onThemeChange={handleThemeChange} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
