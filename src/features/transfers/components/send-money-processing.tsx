@@ -1,6 +1,8 @@
 import { LoaderCircle } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import type { CurrencyCode } from "@/types/currency";
+
 import { formatTransferAmount } from "../lib/format";
 import type { Recipient } from "../types/transfer";
 
@@ -9,11 +11,13 @@ import { FlowStepper } from "./flow-stepper";
 type SendMoneyProcessingProps = {
   recipient: Recipient;
   amount: number;
+  currency: CurrencyCode;
 };
 
 export function SendMoneyProcessing({
   recipient,
   amount,
+  currency,
 }: SendMoneyProcessingProps) {
   return (
     <div className="flex flex-col gap-6">
@@ -25,7 +29,7 @@ export function SendMoneyProcessing({
           Please wait while we process your transfer.
         </p>
       </div>
-      <FlowStepper currentStep={6} />
+      <FlowStepper currentStep={5} />
       <Card className="mx-auto w-full max-w-lg py-8">
         <CardContent className="flex flex-col items-center gap-3 text-center">
           <LoaderCircle
@@ -33,7 +37,7 @@ export function SendMoneyProcessing({
             aria-hidden="true"
           />
           <p className="text-sm text-muted-foreground" aria-live="polite">
-            Sending {formatTransferAmount(amount)} to {recipient.name}…
+            Sending {formatTransferAmount(amount, currency)} to {recipient.name}…
           </p>
         </CardContent>
       </Card>

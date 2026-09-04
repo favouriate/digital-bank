@@ -33,13 +33,15 @@ describe("loginSchema", () => {
     }
   });
 
-  it("rejects a short password", () => {
-    const result = loginSchema.safeParse({ ...valid, password: "short" });
+  it("accepts any non-empty password", () => {
+    expect(loginSchema.parse({ ...valid, password: "1" }).password).toBe("1");
+  });
+
+  it("rejects an empty password", () => {
+    const result = loginSchema.safeParse({ ...valid, password: "" });
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0]?.message).toBe(
-        "Password must be at least 8 characters",
-      );
+      expect(result.error.issues[0]?.message).toBe("Enter your password");
     }
   });
 });

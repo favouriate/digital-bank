@@ -1,12 +1,13 @@
-import { maskAccountNumber } from "../lib/mask-account";
 import type {
   RecipientLookupInput,
   ResolvedRecipient,
 } from "../types/destination";
 import { RecipientLookupError } from "../types/destination";
+import { maskAccountNumber } from "../lib/mask-account";
 import { getMockBank, getMockDestination } from "./mock-destinations";
+import { generateMockRecipient } from "./generate-mock-recipient";
 
-type KnownAccount = {
+type RecentAccount = {
   countryCode: RecipientLookupInput["countryCode"];
   bankId: string;
   accountNumber: string;
@@ -16,16 +17,17 @@ type KnownAccount = {
   avatarUrl: string | null;
 };
 
+export const LOOKUP_DELAY_MS = 650;
+
+export const LOOKUP_NOT_FOUND_SUFFIX = "0000";
+
+export const LOOKUP_UNAVAILABLE_SUFFIX = "9999";
+
 export const LOOKUP_NOT_FOUND_MESSAGE =
   "We couldn't find this account. Check the account number and try again.";
 
-export const KNOWN_ACCOUNT_ASTRID = "0123456789";
-export const KNOWN_ACCOUNT_DAKOTA = "2233445566";
-export const KNOWN_ACCOUNT_MICHAEL = "3344556677";
-export const KNOWN_ACCOUNT_SARAH = "4455667788";
-export const KNOWN_ACCOUNT_ANTONIA = "5566778899";
-export const KNOWN_ACCOUNT_CARLA = "6677889900";
-export const UNKNOWN_ACCOUNT_NG = "0000000000";
+export const LOOKUP_UNAVAILABLE_MESSAGE =
+  "Account lookup is temporarily unavailable. Please try again.";
 
 const AVATAR_ASTRID =
   "https://api.dicebear.com/9.x/avataaars/svg?seed=Astrid";
@@ -34,11 +36,11 @@ const AVATAR_DAVID =
 const AVATAR_CARLA =
   "https://api.dicebear.com/9.x/avataaars/svg?seed=Carla";
 
-const KNOWN_ACCOUNTS: KnownAccount[] = [
+const RECENT_ACCOUNTS: RecentAccount[] = [
   {
     countryCode: "NG",
     bankId: "gtbank",
-    accountNumber: KNOWN_ACCOUNT_ASTRID,
+    accountNumber: "0123456789",
     id: "contact-astrid-hayes",
     name: "Astrid Hayes",
     initials: "AH",
@@ -47,82 +49,22 @@ const KNOWN_ACCOUNTS: KnownAccount[] = [
   {
     countryCode: "NG",
     bankId: "access",
-    accountNumber: KNOWN_ACCOUNT_DAKOTA,
+    accountNumber: "2233445566",
     id: "contact-dakota-milk",
     name: "David Morris",
     initials: "DM",
     avatarUrl: AVATAR_DAVID,
   },
   {
-    countryCode: "NG",
-    bankId: "first-bank",
-    accountNumber: KNOWN_ACCOUNT_MICHAEL,
-    id: "contact-michael",
-    name: "Michael",
-    initials: "MI",
-    avatarUrl: null,
-  },
-  {
-    countryCode: "NG",
-    bankId: "uba",
-    accountNumber: KNOWN_ACCOUNT_SARAH,
-    id: "contact-sarah",
-    name: "Sarah",
-    initials: "SA",
-    avatarUrl: null,
-  },
-  {
-    countryCode: "NG",
-    bankId: "zenith",
-    accountNumber: KNOWN_ACCOUNT_ANTONIA,
-    id: "contact-antonia",
-    name: "Antonia",
-    initials: "AN",
-    avatarUrl: null,
-  },
-  {
     countryCode: "GB",
     bankId: "barclays",
-    accountNumber: KNOWN_ACCOUNT_CARLA,
+    accountNumber: "66778899",
     id: "contact-carla-rose",
     name: "Carla Rose",
     initials: "CR",
     avatarUrl: AVATAR_CARLA,
   },
-  {
-    countryCode: "CA",
-    bankId: "rbc",
-    accountNumber: "1234567",
-    id: "contact-canada-demo",
-    name: "Jordan Lee",
-    initials: "JL",
-    avatarUrl: null,
-  },
-  {
-    countryCode: "GH",
-    bankId: "gcb",
-    accountNumber: "1234567890123",
-    id: "contact-ghana-demo",
-    name: "Ama Mensah",
-    initials: "AM",
-    avatarUrl: null,
-  },
-  {
-    countryCode: "ZA",
-    bankId: "standard-bank",
-    accountNumber: "123456789",
-    id: "contact-zar-demo",
-    name: "Thabo Nkosi",
-    initials: "TN",
-    avatarUrl: null,
-  },
 ];
-
-const RECENT_RECIPIENT_IDS = [
-  "contact-astrid-hayes",
-  "contact-dakota-milk",
-  "contact-carla-rose",
-] as const;
 
 function wait(ms: number) {
   return new Promise((resolve) => {
@@ -130,7 +72,7 @@ function wait(ms: number) {
   });
 }
 
-function toResolvedRecipient(account: KnownAccount): ResolvedRecipient {
+function toResolvedRecipient(account: RecentAccount): ResolvedRecipient {
   const bank = getMockBank(account.bankId);
   const destination = getMockDestination(account.countryCode);
 
@@ -152,20 +94,12 @@ function toResolvedRecipient(account: KnownAccount): ResolvedRecipient {
 }
 
 export function getMockRecentRecipients(): ResolvedRecipient[] {
-  return RECENT_RECIPIENT_IDS.map((id) => {
-    const account = KNOWN_ACCOUNTS.find((item) => item.id === id);
-
-    if (!account) {
-      throw new RecipientLookupError(LOOKUP_NOT_FOUND_MESSAGE);
-    }
-
-    return toResolvedRecipient(account);
-  });
+  return RECENT_ACCOUNTS.map((account) => toResolvedRecipient(account));
 }
 
 export function getKnownAccountNumber(recipientId: string) {
   return (
-    KNOWN_ACCOUNTS.find((account) => account.id === recipientId)
+    RECENT_ACCOUNTS.find((account) => account.id === recipientId)
       ?.accountNumber ?? null
   );
 }
@@ -173,18 +107,21 @@ export function getKnownAccountNumber(recipientId: string) {
 export async function mockLookupRecipient(
   input: RecipientLookupInput,
 ): Promise<ResolvedRecipient> {
-  await wait(450);
+  await wait(LOOKUP_DELAY_MS);
 
-  const match = KNOWN_ACCOUNTS.find(
-    (account) =>
-      account.countryCode === input.countryCode &&
-      account.bankId === input.bankId &&
-      account.accountNumber === input.accountNumber.trim(),
-  );
+  const accountNumber = input.accountNumber.trim();
 
-  if (!match) {
+  if (accountNumber.endsWith(LOOKUP_NOT_FOUND_SUFFIX)) {
     throw new RecipientLookupError(LOOKUP_NOT_FOUND_MESSAGE);
   }
 
-  return toResolvedRecipient(match);
+  if (accountNumber.endsWith(LOOKUP_UNAVAILABLE_SUFFIX)) {
+    throw new RecipientLookupError(LOOKUP_UNAVAILABLE_MESSAGE);
+  }
+
+  return generateMockRecipient({
+    countryCode: input.countryCode,
+    bankId: input.bankId,
+    accountNumber,
+  });
 }

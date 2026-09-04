@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { Eye, EyeOff, Plus } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -43,15 +42,6 @@ export function BalanceBlock({
           {formatBalance(availableBalance, balanceVisible)}
         </p>
       </div>
-      <Button
-        variant="secondary"
-        nativeButton={false}
-        className="h-11 min-h-11 rounded-lg"
-        render={<Link href="/add-money" />}
-      >
-        <Plus className="size-4" aria-hidden="true" />
-        Add Money
-      </Button>
     </div>
   );
 }

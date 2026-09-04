@@ -1,5 +1,24 @@
 import type { AccountSummary, MoneyFlowSeries } from "../types/dashboard";
 
+export const INITIAL_AVAILABLE_BALANCE = 10680;
+let availableBalanceMinor = INITIAL_AVAILABLE_BALANCE * 100;
+
+export function toUsdMinor(amount: number) {
+  const minor = Math.round(amount * 100);
+  if (!Number.isFinite(amount) || !Number.isSafeInteger(minor) || amount < 0) {
+    throw new Error("Invalid money amount.");
+  }
+  return minor;
+}
+
+export function getAvailableBalanceMinor() {
+  return availableBalanceMinor;
+}
+
+export function roundUsd(amount: number) {
+  return Math.round(amount * 100) / 100;
+}
+
 export const mockAccountSummary: AccountSummary = {
   card: {
     holderName: "Carla Rosser",
@@ -7,11 +26,31 @@ export const mockAccountSummary: AccountSummary = {
     expiryLabel: "08/23",
     brand: "visa",
   },
-  availableBalance: 10680,
+  get availableBalance() {
+    return availableBalanceMinor / 100;
+  },
+  set availableBalance(amount: number) {
+    availableBalanceMinor = toUsdMinor(amount);
+  },
   currency: "USD",
   monthlyChangePercent: 4.8,
   sourceLabel: "Debit",
 };
+
+export function getAvailableBalance() {
+  return mockAccountSummary.availableBalance;
+}
+
+export function debitAvailableBalance(usdAmount: number) {
+  const debit = toUsdMinor(usdAmount);
+  if (debit > availableBalanceMinor) throw new Error("Insufficient balance.");
+  availableBalanceMinor -= debit;
+  return mockAccountSummary.availableBalance;
+}
+
+export function resetAvailableBalance() {
+  mockAccountSummary.availableBalance = INITIAL_AVAILABLE_BALANCE;
+}
 
 export const mockBalanceTrend = [
   9200, 9450, 9100, 9800, 10120, 9980, 10340, 10680,

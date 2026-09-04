@@ -10,5 +10,6 @@ export function useTransferQuery() {
   return useQuery({
     queryKey: transferQueryKey,
     queryFn: getTransferPage,
+    refetchOnMount: "always",
   });
 }

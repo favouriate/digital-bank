@@ -15,7 +15,7 @@ export function SendMoneyValidating() {
           We&apos;re checking the details before you continue.
         </p>
       </div>
-      <FlowStepper currentStep={4} />
+      <FlowStepper currentStep={3} />
       <Card className="mx-auto w-full max-w-lg py-8">
         <CardContent className="flex flex-col items-center gap-3 text-center">
           <LoaderCircle

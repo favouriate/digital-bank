@@ -1,46 +1,36 @@
 "use client";
 
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 
+import { AppLogo } from "@/components/layout/app-logo";
 import { DesktopSidebarTrigger } from "@/components/layout/desktop-sidebar-trigger";
-import { MobileNavSheet } from "@/components/layout/mobile-nav-sheet";
-import { NotificationEntry } from "@/components/layout/notification-entry";
 import { SearchEntry } from "@/components/layout/search-entry";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ThemeToggle } from "@/features/auth/login/components/theme-toggle";
 import { DashboardGreeting } from "@/features/dashboard/components/dashboard-greeting";
-import type { NotificationSummary } from "@/types/notification";
 import type { User } from "@/types/user";
 
 type AppHeaderProps = {
   user: User;
-  notifications: NotificationSummary;
 };
 
-export function AppHeader({ user, notifications }: AppHeaderProps) {
+export function AppHeader({ user }: AppHeaderProps) {
   const pathname = usePathname();
   const isDashboard = pathname === "/";
-  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-card shadow-xs dark:shadow-none">
       <div className="mx-auto flex w-full max-w-content flex-col gap-1 px-page-mobile pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 md:px-page-tablet lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:px-page-desktop lg:py-2.5">
         <div className="flex items-center justify-between gap-2 lg:contents">
           <div className="flex min-w-0 items-center gap-1 lg:order-1">
-            <MobileNavSheet notifications={notifications} />
+            <AppLogo className="lg:hidden [&_span:first-child]:size-7" />
             <DesktopSidebarTrigger />
           </div>
 
           <div className="flex shrink-0 items-center gap-0.5 lg:order-3 lg:gap-2">
-            <SearchEntry
-              showTrigger={false}
-              open={searchOpen}
-              onOpenChange={setSearchOpen}
-            />
+            <SearchEntry />
             <ThemeToggle compact />
-            <NotificationEntry unreadCount={notifications.unreadCount} />
-            <UserMenu user={user} onSearch={() => setSearchOpen(true)} />
+            <UserMenu user={user} />
           </div>
         </div>
 

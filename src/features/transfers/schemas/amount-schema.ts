@@ -1,26 +1,42 @@
 import { z } from "zod";
 
+import { formatMoney } from "@/lib/currency";
+import type { CurrencyCode } from "@/types/currency";
+
+import {
+  destFromUsd,
+  usdFromDest,
+  roundTransferMoney,
+} from "../lib/convert-amount";
+
 export const MIN_TRANSFER_AMOUNT = 1;
 export const MAX_TRANSFER_AMOUNT = 10_000;
 export const DEFAULT_TRANSFER_AMOUNT = 1250;
 
-export function createTransferAmountSchema(availableBalance: number) {
+export function createTransferAmountSchema(
+  usdAvailableBalance: number,
+  currency: CurrencyCode = "USD",
+) {
+  const destMin = destFromUsd(MIN_TRANSFER_AMOUNT, currency);
+  const destMax = destFromUsd(MAX_TRANSFER_AMOUNT, currency);
+
   return z
     .string()
     .trim()
     .min(1, "Enter an amount")
-    .transform((value) => Number(value.replace(/[$,\s]/g, "")))
+    .transform((value) => Number(value.replace(/[^\d.]/g, "")))
     .refine((value) => Number.isFinite(value) && value > 0, {
       message: "Enter a valid amount",
     })
-    .refine((value) => value >= MIN_TRANSFER_AMOUNT, {
-      message: "Minimum amount is $1.00",
+    .transform(roundTransferMoney)
+    .refine((value) => usdFromDest(value, currency) >= MIN_TRANSFER_AMOUNT, {
+      message: `Minimum amount is ${formatMoney(destMin, currency)}`,
     })
-    .refine((value) => value <= MAX_TRANSFER_AMOUNT, {
-      message: "Maximum amount is $10,000.00",
+    .refine((value) => usdFromDest(value, currency) <= usdAvailableBalance, {
+      message: "Insufficient balance.",
     })
-    .refine((value) => value <= availableBalance, {
-      message: "Amount exceeds available balance",
+    .refine((value) => usdFromDest(value, currency) <= MAX_TRANSFER_AMOUNT, {
+      message: `Maximum amount is ${formatMoney(destMax, currency)}`,
     });
 }
 

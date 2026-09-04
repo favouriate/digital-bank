@@ -9,6 +9,8 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
+import type { CurrencyCode } from "@/types/currency";
+
 import { formatTransferAmount } from "../lib/format";
 import { TRANSFER_PIN_LENGTH } from "../schemas/transfer-schema";
 import type { Recipient } from "../types/transfer";
@@ -19,6 +21,7 @@ import { TransferSummary } from "./transfer-summary";
 type SendMoneyPinProps = {
   recipient: Recipient;
   amount: number;
+  currency: CurrencyCode;
   pin: string;
   error: string | null;
   isPending: boolean;
@@ -30,6 +33,7 @@ type SendMoneyPinProps = {
 export function SendMoneyPin({
   recipient,
   amount,
+  currency,
   pin,
   error,
   isPending,
@@ -55,11 +59,11 @@ export function SendMoneyPin({
           Enter transaction PIN
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Authorize {formatTransferAmount(amount)} to {recipient.name}.
+          Authorize {formatTransferAmount(amount, currency)} to {recipient.name}.
         </p>
       </div>
 
-      <FlowStepper currentStep={5} />
+      <FlowStepper currentStep={4} />
 
       <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
         <div className="flex flex-col gap-4 lg:col-span-7">
@@ -78,10 +82,10 @@ export function SendMoneyPin({
                 onChange={onPinChange}
               >
                 <InputOTPGroup>
-                  <InputOTPSlot index={0} className="size-12 text-lg" />
-                  <InputOTPSlot index={1} className="size-12 text-lg" />
-                  <InputOTPSlot index={2} className="size-12 text-lg" />
-                  <InputOTPSlot index={3} className="size-12 text-lg" />
+                  <InputOTPSlot index={0} className="size-12 border-input/35 text-lg data-[active=true]:border-ring/60 data-[active=true]:ring-1 data-[active=true]:ring-ring/20" />
+                  <InputOTPSlot index={1} className="size-12 border-input/35 text-lg data-[active=true]:border-ring/60 data-[active=true]:ring-1 data-[active=true]:ring-ring/20" />
+                  <InputOTPSlot index={2} className="size-12 border-input/35 text-lg data-[active=true]:border-ring/60 data-[active=true]:ring-1 data-[active=true]:ring-ring/20" />
+                  <InputOTPSlot index={3} className="size-12 border-input/35 text-lg data-[active=true]:border-ring/60 data-[active=true]:ring-1 data-[active=true]:ring-ring/20" />
                 </InputOTPGroup>
               </InputOTP>
             </div>
@@ -130,7 +134,11 @@ export function SendMoneyPin({
           </div>
         </div>
         <div className="lg:col-span-5">
-          <TransferSummary recipient={recipient} amount={amount} />
+          <TransferSummary
+            recipient={recipient}
+            amount={amount}
+            currency={currency}
+          />
         </div>
       </div>
     </div>

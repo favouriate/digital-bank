@@ -11,10 +11,10 @@ export type SearchPage = {
 
 const SEARCH_PAGE_DEFS = [
   { id: "dashboard", label: "Dashboard" },
-  { id: "transfers", label: "Transfer" },
+  { id: "transfers", label: "Send Money" },
   { id: "transactions", label: "Transactions" },
   { id: "settings", label: "Settings" },
-  { id: "support", label: "Help" },
+  { id: "support", label: "Support" },
 ] as const;
 
 export function getSearchPages(): SearchPage[] {

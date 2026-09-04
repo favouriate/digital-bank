@@ -5,6 +5,8 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { CurrencyCode } from "@/types/currency";
+
 import { formatTransferAmount } from "../lib/format";
 import { transferNoteSchema } from "../schemas/transfer-schema";
 import {
@@ -20,6 +22,7 @@ import { TransferSummary } from "./transfer-summary";
 type SendMoneyDetailsProps = {
   recipient: Recipient;
   amount: number;
+  currency?: CurrencyCode;
   error: string | null;
   onBack: () => void;
   onContinue: () => void;
@@ -28,6 +31,7 @@ type SendMoneyDetailsProps = {
 export function SendMoneyDetails({
   recipient,
   amount,
+  currency = "USD",
   error,
   onBack,
   onContinue,
@@ -112,9 +116,13 @@ export function SendMoneyDetails({
           </div>
         </div>
         <div className="flex flex-col gap-4 lg:col-span-5">
-          <TransferSummary recipient={recipient} amount={amount} />
+          <TransferSummary
+            recipient={recipient}
+            amount={amount}
+            currency={currency}
+          />
           <p className="text-sm text-muted-foreground">
-            Sending {formatTransferAmount(amount)} to {recipient.name}.
+            Sending {formatTransferAmount(amount, currency)} to {recipient.name}.
           </p>
           <NeedHelp />
         </div>

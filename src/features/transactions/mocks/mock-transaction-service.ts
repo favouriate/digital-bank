@@ -1,3 +1,4 @@
+import { hydrateDemoLedger } from "@/mocks/demo-ledger";
 import { mockTransactions } from "@/mocks/transactions";
 import type { Transaction } from "@/types/transaction";
 
@@ -19,13 +20,22 @@ function occurredDay(isoDate: string) {
 }
 
 export function filterMockTransactions(
-  params: Pick<TransactionListParams, "search" | "status" | "startDate" | "endDate">,
+  params: Pick<
+    TransactionListParams,
+    "search" | "status" | "startDate" | "endDate"
+  > &
+    Partial<Pick<TransactionListParams, "type">>,
 ): Transaction[] {
   const search = params.search.trim().toLowerCase();
+  const type = params.type ?? "all";
 
   return mockTransactions
     .filter((transaction) => {
       if (params.status !== "all" && transaction.status !== params.status) {
+        return false;
+      }
+
+      if (type !== "all" && transaction.type !== type) {
         return false;
       }
 
@@ -53,12 +63,14 @@ export function filterMockTransactions(
 }
 
 export async function mockGetTransactions(): Promise<Transaction[]> {
-  return mockTransactions;
+  hydrateDemoLedger();
+  return mockTransactions.map((transaction) => ({ ...transaction }));
 }
 
 export async function mockListTransactions(
   params: TransactionListParams,
 ): Promise<TransactionListResult> {
+  hydrateDemoLedger();
   await wait(450);
 
   if (params.search.trim().toLowerCase() === TRANSACTION_LOAD_ERROR_QUERY) {
@@ -85,6 +97,7 @@ export async function mockListTransactions(
 export async function mockGetTransactionById(
   id: string,
 ): Promise<Transaction | null> {
+  hydrateDemoLedger();
   await wait(450);
 
   if (id.trim().toLowerCase() === TRANSACTION_DETAIL_LOAD_ERROR_ID) {
