@@ -1,10 +1,11 @@
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
+import { formatMoney } from "@/lib/currency";
+import type { CurrencyCode } from "@/types/currency";
 
-export function formatTransferAmount(amount: number) {
-  return currencyFormatter.format(amount);
+export function formatTransferAmount(
+  amount: number,
+  currency: CurrencyCode = "USD",
+) {
+  return formatMoney(amount, currency);
 }
 
 export function formatAmountInput(amount: number) {

@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
+import { TransactionHistorySkeleton } from "@/features/transactions/components/transaction-history-skeleton";
 import { TransactionHistoryView } from "@/features/transactions/components/transaction-history-view";
 
 export const metadata: Metadata = {
@@ -7,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function TransactionsPage() {
-  return <TransactionHistoryView />;
+  return (
+    <Suspense fallback={<TransactionHistorySkeleton />}>
+      <TransactionHistoryView />
+    </Suspense>
+  );
 }

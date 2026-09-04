@@ -3,6 +3,8 @@ import { CircleAlert, CircleCheck, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import type { CurrencyCode } from "@/types/currency";
+
 import { formatTransferAmount } from "../lib/format";
 import type { Recipient } from "../types/transfer";
 
@@ -11,12 +13,14 @@ type SendMoneyResultProps =
       status: "success";
       recipient: Recipient;
       amount: number;
+      currency: CurrencyCode;
       onDone: () => void;
     }
   | {
       status: "pending";
       recipient: Recipient;
       amount: number;
+      currency: CurrencyCode;
       onDone: () => void;
     }
   | {
@@ -36,7 +40,7 @@ export function SendMoneyResult(props: SendMoneyResultProps) {
             Money sent
           </h1>
           <p className="text-sm text-muted-foreground">
-            {formatTransferAmount(props.amount)} is on its way to{" "}
+            {formatTransferAmount(props.amount, props.currency)} is on its way to{" "}
             {props.recipient.name}.
           </p>
           <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">
@@ -70,7 +74,7 @@ export function SendMoneyResult(props: SendMoneyResultProps) {
             Transfer pending
           </h1>
           <p className="text-sm text-muted-foreground">
-            {formatTransferAmount(props.amount)} to {props.recipient.name} is
+            {formatTransferAmount(props.amount, props.currency)} to {props.recipient.name} is
             still processing. You can check it later in transactions.
           </p>
           <div className="mt-2 flex w-full flex-col gap-3 sm:flex-row">

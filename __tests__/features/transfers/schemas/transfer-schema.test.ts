@@ -27,6 +27,18 @@ describe("transferAmountSchema", () => {
     expect(schema.safeParse("101").success).toBe(false);
     expect(schema.safeParse("100").success).toBe(true);
   });
+
+  it("validates NGN amounts against the USD equivalent", () => {
+    const schema = createTransferAmountSchema(10680, "NGN");
+    expect(schema.safeParse("1550").success).toBe(true);
+    expect(schema.safeParse("1549").success).toBe(false);
+    expect(schema.safeParse("15500000").success).toBe(true);
+    expect(schema.safeParse("15500001").success).toBe(false);
+
+    const tight = createTransferAmountSchema(50, "NGN");
+    expect(tight.safeParse("77500").success).toBe(true);
+    expect(tight.safeParse("77501").success).toBe(false);
+  });
 });
 
 describe("transferPinSchema", () => {

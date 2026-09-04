@@ -11,7 +11,7 @@ const actions = [
     tone: "bg-primary/10 text-primary",
   },
   {
-    href: "/wallets",
+    href: "/transactions?type=receive",
     label: "Receive",
     icon: ArrowDownLeft,
     tone: "bg-success/10 text-success",

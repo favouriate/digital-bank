@@ -67,7 +67,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
       </div>
       <div className="text-right">
         <p className={cn("text-sm font-semibold", amountClass)}>
-          {formatAmount(transaction.amount)}
+          {formatAmount(transaction.amount, transaction.currency)}
         </p>
         <p className="text-xs text-muted-foreground">{transaction.currency}</p>
       </div>

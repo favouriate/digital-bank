@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronDown, Search, Settings } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ChevronDown, CircleHelp, LogOut, Settings } from "lucide-react";
 
 import { UserAvatar } from "@/components/layout/user-avatar";
 import { Button } from "@/components/ui/button";
@@ -9,18 +9,18 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuShortcut,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLogout } from "@/features/auth/hooks/use-logout";
 import type { User } from "@/types/user";
 
 type UserMenuProps = {
   user: User;
-  onSearch: () => void;
 };
 
-export function UserMenu({ user, onSearch }: UserMenuProps) {
-  const router = useRouter();
+export function UserMenu({ user }: UserMenuProps) {
+  const logout = useLogout();
 
   return (
     <DropdownMenu>
@@ -44,14 +44,18 @@ export function UserMenu({ user, onSearch }: UserMenuProps) {
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-48">
-        <DropdownMenuItem onClick={onSearch}>
-          <Search aria-hidden="true" />
-          Search
-          <DropdownMenuShortcut>Ctrl+K</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/settings")}>
+        <DropdownMenuItem render={<Link href="/settings" />}>
           <Settings aria-hidden="true" />
           Settings
+        </DropdownMenuItem>
+        <DropdownMenuItem render={<Link href="/support" />}>
+          <CircleHelp aria-hidden="true" />
+          Support
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onClick={logout}>
+          <LogOut aria-hidden="true" />
+          Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

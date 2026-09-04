@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ChevronRight, Eye, EyeOff, TrendingUp } from "lucide-react";
+import { Eye, EyeOff, TrendingUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -131,16 +130,6 @@ export function TotalBalanceCard({
               </span>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            nativeButton={false}
-            className={`size-11 min-h-11 min-w-11 shrink-0 ${gradientControlClassName}`}
-            aria-label="View wallets"
-            render={<Link href="/wallets" />}
-          >
-            <ChevronRight className="size-5" aria-hidden="true" />
-          </Button>
         </div>
         <QuickActions />
       </CardContent>

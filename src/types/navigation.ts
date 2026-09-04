@@ -4,7 +4,7 @@ export type NavigationPlacement =
   | "sidebar"
   | "sidebar-footer"
   | "mobile-tab"
-  | "mobile-menu";
+  | "mobile-more";
 
 export type NavigationItem = {
   id: string;
@@ -12,5 +12,4 @@ export type NavigationItem = {
   href: string;
   icon: LucideIcon;
   placements: NavigationPlacement[];
-  badgeKey?: "messages";
 };

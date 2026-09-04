@@ -10,11 +10,10 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useTransferBanksQuery } from "../hooks/use-transfer-banks-query";
 import { useTransferDestinationsQuery } from "../hooks/use-transfer-destinations-query";
 import { useRecipientLookupQuery } from "../hooks/use-recipient-lookup-query";
-import { isValidAccountNumber, getAccountNumberMaxLength } from "../schemas/account-number-schema";
+import { isValidAccountNumber, getAccountNumberMaxLength, createAccountNumberSchema } from "../schemas/account-number-schema";
 import type {
   DestinationCountryCode,
   ResolvedRecipient,
@@ -83,6 +82,24 @@ export function SendMoneyRecipientForm({
 
     return "We couldn't find this account. Check the account number and try again.";
   }, [lookupEnabled, lookupQuery.error, lookupQuery.isError]);
+
+  const formatErrorMessage = useMemo(() => {
+    if (!countryCode || !bankId) {
+      return null;
+    }
+
+    const trimmed = accountNumber.trim();
+    if (!trimmed || isValidAccountNumber(countryCode, trimmed)) {
+      return null;
+    }
+
+    const result = createAccountNumberSchema(countryCode).safeParse(trimmed);
+    if (result.success) {
+      return null;
+    }
+
+    return result.error.issues[0]?.message ?? null;
+  }, [accountNumber, bankId, countryCode]);
 
   const resolved =
     lookupEnabled && lookupQuery.isSuccess ? lookupQuery.data : null;
@@ -155,7 +172,7 @@ export function SendMoneyRecipientForm({
             maxLength={
               countryCode ? getAccountNumberMaxLength(countryCode) : 17
             }
-            aria-invalid={Boolean(lookupErrorMessage)}
+            aria-invalid={Boolean(lookupErrorMessage || formatErrorMessage)}
             aria-describedby="destination-account-hint"
             onChange={(event) => {
               setAccountNumber(event.target.value.replace(/\D/g, ""));
@@ -182,8 +199,7 @@ export function SendMoneyRecipientForm({
               className="size-4 animate-spin text-primary"
               aria-hidden="true"
             />
-            <Skeleton className="h-4 w-40" />
-            <span className="sr-only">Looking up account</span>
+            <p className="text-sm text-muted-foreground">Checking account...</p>
           </div>
         ) : null}
 
@@ -197,10 +213,17 @@ export function SendMoneyRecipientForm({
               <p className="text-sm font-medium text-success">Account found</p>
               <p className="font-semibold text-foreground">{resolved.name}</p>
               <p className="text-sm text-muted-foreground">
-                {resolved.bankName} {resolved.accountNumberMasked}
+                {resolved.bankName} {resolved.accountNumberMasked} ·{" "}
+                {resolved.currencyCode}
               </p>
             </div>
           </div>
+        ) : null}
+
+        {formatErrorMessage ? (
+          <p role="alert" className="text-sm text-destructive">
+            {formatErrorMessage}
+          </p>
         ) : null}
 
         {lookupErrorMessage ? (

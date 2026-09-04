@@ -1,16 +1,9 @@
 import { cn } from "@/lib/utils";
 
-const STEPS = [
-  "Recipient",
-  "Amount",
-  "Details",
-  "Review",
-  "PIN",
-  "Result",
-] as const;
+const STEPS = ["Recipient", "Amount", "Review", "PIN", "Result"] as const;
 
 type FlowStepperProps = {
-  currentStep: 1 | 2 | 3 | 4 | 5 | 6;
+  currentStep: 1 | 2 | 3 | 4 | 5;
 };
 
 export function FlowStepper({ currentStep }: FlowStepperProps) {

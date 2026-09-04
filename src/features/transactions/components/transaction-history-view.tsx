@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Download, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { buildTransactionsCsv, downloadCsv } from "../lib/export-csv";
 import { listTransactions } from "../services/transaction-service";
 import {
   TRANSACTION_PAGE_SIZE,
+  parseTransactionTypeFilter,
   type TransactionStatusFilter,
 } from "../types/transaction-list";
 
@@ -28,6 +30,9 @@ import { TransactionHistoryTabs } from "./transaction-history-tabs";
 import { TransactionStatusFilterMenu } from "./transaction-status-filter";
 
 export function TransactionHistoryView() {
+  const searchParams = useSearchParams();
+  const type = parseTransactionTypeFilter(searchParams.get("type"));
+  const isReceivedView = type === "receive";
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<TransactionStatusFilter>("all");
   const [startDate, setStartDate] = useState<string | null>(null);
@@ -36,22 +41,35 @@ export function TransactionHistoryView() {
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  useEffect(() => {
+    setPage(1);
+  }, [type]);
+
   const params = useMemo(
     () => ({
       page,
       pageSize: TRANSACTION_PAGE_SIZE,
       search,
       status,
+      type,
       startDate,
       endDate,
     }),
-    [page, search, status, startDate, endDate],
+    [page, search, status, type, startDate, endDate],
   );
 
   const query = useTransactionsQuery(params);
   const hasFilters = Boolean(
-    search.trim() || status !== "all" || startDate || endDate,
+    search.trim() ||
+      status !== "all" ||
+      startDate ||
+      endDate ||
+      isReceivedView,
   );
+  const heading = isReceivedView ? "Money received" : "Transaction History";
+  const subtitle = isReceivedView
+    ? "Payments sent to you."
+    : "View and manage all your transactions.";
 
   function resetPage() {
     setPage(1);
@@ -178,7 +196,7 @@ export function TransactionHistoryView() {
           <ArrowLeft className="size-5" aria-hidden="true" />
         </Link>
         <h1 className="pointer-events-none absolute inset-x-12 text-center text-base font-semibold text-foreground">
-          Transaction History
+          {heading}
         </h1>
         {exportButton}
       </div>
@@ -186,11 +204,9 @@ export function TransactionHistoryView() {
       <div className="hidden items-start justify-between gap-4 lg:flex">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">
-            Transaction History
+            {heading}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            View and manage all your transactions.
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         </div>
         {exportButton}
       </div>

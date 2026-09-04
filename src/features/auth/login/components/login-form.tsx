@@ -19,6 +19,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { setDemoSession } from "@/features/auth/lib/demo-session";
+
 import { useLoginMutation } from "../hooks/use-login-mutation";
 import { LoginError } from "../types/login";
 import {
@@ -72,6 +74,7 @@ export function LoginForm() {
         window.localStorage.removeItem(REMEMBERED_EMAIL_KEY);
       }
 
+      setDemoSession();
       router.push("/");
     } catch (error) {
       const message =
