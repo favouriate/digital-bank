@@ -126,7 +126,7 @@ export function AddMoneyCompose({ data }: AddMoneyComposeProps) {
             />
           </div>
           <SecurityNotice />
-          <ImportantNotice />
+          <ImportantNotice currency={currency} />
         </div>
       </div>
 

@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
 import { formatAmountInput } from "../lib/format";
-import { DEFAULT_TRANSFER_AMOUNT } from "../schemas/amount-schema";
 import type { ResolvedRecipient } from "../types/destination";
 import type { TransferStep } from "../types/transfer";
 
 export type TransferDraft = {
+  transferId: string | null;
   recipientId: string | null;
   amount: number | null;
   amountInput: string;
@@ -47,9 +47,10 @@ type TransferDraftStore = TransferDraft & {
 };
 
 const emptyDraft: TransferDraft = {
+  transferId: null,
   recipientId: null,
-  amount: DEFAULT_TRANSFER_AMOUNT,
-  amountInput: formatAmountInput(DEFAULT_TRANSFER_AMOUNT),
+  amount: null,
+  amountInput: "",
   note: "",
   step: "compose",
   destinationCountryCode: null,
@@ -85,7 +86,9 @@ function fromResolvedRecipient(
 }
 
 function draftFromStart(draft: TransferStartDraft): Partial<TransferDraft> {
-  const patch: Partial<TransferDraft> = { step: "compose" };
+  const patch: Partial<TransferDraft> = {
+    step: draft.resolvedRecipient ? "amount" : "compose",
+  };
 
   if (draft.resolvedRecipient !== undefined) {
     Object.assign(
@@ -144,7 +147,7 @@ export const useTransferDraftStore = create<TransferDraftStore>((set) => ({
   },
   setResolvedRecipient: (recipient, accountNumber) => {
     set({
-      step: "compose",
+      step: recipient ? "amount" : "compose",
       ...fromResolvedRecipient(recipient, accountNumber),
     });
   },
@@ -189,7 +192,7 @@ export function setResolvedTransferRecipient(
   accountNumber?: string | null,
 ) {
   useTransferDraftStore.setState({
-    step: "compose",
+    step: recipient ? "amount" : "compose",
     ...fromResolvedRecipient(recipient, accountNumber),
   });
 }
@@ -204,4 +207,11 @@ export function clearResolvedTransferRecipient() {
 
 export function resetTransferDraft() {
   useTransferDraftStore.setState({ ...emptyDraft });
+}
+
+/** Keep one ID across confirmation retries; reviewing starts a new operation. */
+export function beginTransferOperation() {
+  const transferId = `txn-send-${crypto.randomUUID()}`;
+  useTransferDraftStore.setState({ transferId });
+  return transferId;
 }

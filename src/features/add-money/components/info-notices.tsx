@@ -1,5 +1,10 @@
 import { Info, Shield } from "lucide-react";
 
+import type { CurrencyCode } from "@/types/currency";
+
+import { formatAddMoneyAmount } from "../lib/format";
+import { MAX_ADD_MONEY_AMOUNT } from "../schemas/amount-schema";
+
 export function SecurityNotice() {
   return (
     <aside className="flex gap-3 rounded-xl bg-primary/10 px-4 py-3 text-sm text-foreground">
@@ -12,13 +17,14 @@ export function SecurityNotice() {
   );
 }
 
-export function ImportantNotice() {
+export function ImportantNotice({ currency }: { currency: CurrencyCode }) {
   return (
     <aside className="flex gap-3 rounded-xl bg-muted px-4 py-3 text-sm text-foreground">
       <Info className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
       <p>
         <span className="font-semibold">Important information. </span>
-        Funds will be available in your account instantly. Daily limit: $10,000.00
+        Funds will be available in your account instantly. Daily limit:{" "}
+        {formatAddMoneyAmount(MAX_ADD_MONEY_AMOUNT, currency)}
       </p>
     </aside>
   );

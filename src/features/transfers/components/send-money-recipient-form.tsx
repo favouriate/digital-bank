@@ -10,11 +10,11 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { useTransferBanksQuery } from "../hooks/use-transfer-banks-query";
 import { useTransferDestinationsQuery } from "../hooks/use-transfer-destinations-query";
 import { useRecipientLookupQuery } from "../hooks/use-recipient-lookup-query";
-import { isValidAccountNumber, getAccountNumberMaxLength } from "../schemas/account-number-schema";
+import { isValidAccountNumber, getAccountNumberMaxLength, createAccountNumberSchema } from "../schemas/account-number-schema";
 import type {
   DestinationCountryCode,
   ResolvedRecipient,
@@ -35,6 +35,7 @@ type SendMoneyRecipientFormProps = {
   initialBankId?: string | null;
   initialAccountNumber?: string | null;
   continueLabel?: string;
+  compact?: boolean;
 };
 
 export function SendMoneyRecipientForm({
@@ -43,6 +44,7 @@ export function SendMoneyRecipientForm({
   initialBankId = null,
   initialAccountNumber = "",
   continueLabel = "Continue",
+  compact = false,
 }: SendMoneyRecipientFormProps) {
   const destinationsQuery = useTransferDestinationsQuery();
   const destinations = destinationsQuery.data ?? [];
@@ -84,6 +86,24 @@ export function SendMoneyRecipientForm({
     return "We couldn't find this account. Check the account number and try again.";
   }, [lookupEnabled, lookupQuery.error, lookupQuery.isError]);
 
+  const formatErrorMessage = useMemo(() => {
+    if (!countryCode || !bankId) {
+      return null;
+    }
+
+    const trimmed = accountNumber.trim();
+    if (!trimmed || isValidAccountNumber(countryCode, trimmed)) {
+      return null;
+    }
+
+    const result = createAccountNumberSchema(countryCode).safeParse(trimmed);
+    if (result.success) {
+      return null;
+    }
+
+    return result.error.issues[0]?.message ?? null;
+  }, [accountNumber, bankId, countryCode]);
+
   const resolved =
     lookupEnabled && lookupQuery.isSuccess ? lookupQuery.data : null;
   const canContinue = Boolean(resolved) && !lookupQuery.isFetching;
@@ -111,8 +131,8 @@ export function SendMoneyRecipientForm({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="space-y-2">
+    <div className={cn("flex flex-col gap-4", compact && "lg:gap-3")}>
+      <div className={cn("space-y-2", compact && "lg:space-y-1")}>
         <Label htmlFor="destination-country">Country / currency</Label>
         <DestinationCombobox
           id="destination-country"
@@ -126,7 +146,7 @@ export function SendMoneyRecipientForm({
           onChange={handleDestinationChange}
         />
       </div>
-      <div className="space-y-2">
+      <div className={cn("space-y-2", compact && "lg:space-y-1")}>
         <Label htmlFor="destination-bank">Bank</Label>
         <BankCombobox
           id="destination-bank"
@@ -142,9 +162,9 @@ export function SendMoneyRecipientForm({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className={cn("space-y-2", compact && "lg:space-y-1")}>
         <Label htmlFor="destination-account">Account number</Label>
-        <InputGroup className="h-12 min-h-11">
+        <InputGroup className={cn("h-12 min-h-11", compact && "lg:h-11")}>
           <InputGroupInput
             id="destination-account"
             inputMode="numeric"
@@ -155,7 +175,7 @@ export function SendMoneyRecipientForm({
             maxLength={
               countryCode ? getAccountNumberMaxLength(countryCode) : 17
             }
-            aria-invalid={Boolean(lookupErrorMessage)}
+            aria-invalid={Boolean(lookupErrorMessage || formatErrorMessage)}
             aria-describedby="destination-account-hint"
             onChange={(event) => {
               setAccountNumber(event.target.value.replace(/\D/g, ""));
@@ -169,7 +189,10 @@ export function SendMoneyRecipientForm({
 
       <div
         id="destination-account-hint"
-        className="flex gap-2 rounded-xl bg-accent px-3 py-3 text-sm text-accent-foreground"
+        className={cn(
+          "flex gap-2 rounded-xl bg-accent px-3 py-3 text-sm text-accent-foreground",
+          compact && "lg:py-2",
+        )}
       >
         <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         <p>We&apos;ll find the account details and confirm the recipient.</p>
@@ -182,8 +205,7 @@ export function SendMoneyRecipientForm({
               className="size-4 animate-spin text-primary"
               aria-hidden="true"
             />
-            <Skeleton className="h-4 w-40" />
-            <span className="sr-only">Looking up account</span>
+            <p className="text-sm text-muted-foreground">Checking account...</p>
           </div>
         ) : null}
 
@@ -197,10 +219,17 @@ export function SendMoneyRecipientForm({
               <p className="text-sm font-medium text-success">Account found</p>
               <p className="font-semibold text-foreground">{resolved.name}</p>
               <p className="text-sm text-muted-foreground">
-                {resolved.bankName} {resolved.accountNumberMasked}
+                {resolved.bankName} {resolved.accountNumberMasked} ·{" "}
+                {resolved.currencyCode}
               </p>
             </div>
           </div>
+        ) : null}
+
+        {formatErrorMessage ? (
+          <p role="alert" className="text-sm text-destructive">
+            {formatErrorMessage}
+          </p>
         ) : null}
 
         {lookupErrorMessage ? (
@@ -212,7 +241,10 @@ export function SendMoneyRecipientForm({
 
       <Button
         type="button"
-        className="h-12 min-h-12 w-full rounded-xl text-base"
+        className={cn(
+          "h-12 min-h-12 w-full rounded-xl text-base",
+          compact && "lg:h-11 lg:min-h-11",
+        )}
         disabled={!canContinue}
         title={
           canContinue

@@ -2,7 +2,6 @@ import { mockUser } from "@/mocks/user";
 import {
   getDemoPin,
   mockVerifyPin,
-  PinError,
   resetTransferMocks,
 } from "@/features/transfers/mocks/mock-transfer-service";
 import { MOCK_TRANSFER_PIN } from "@/features/transfers/schemas/transfer-schema";
@@ -106,7 +105,7 @@ describe("mock profile service", () => {
     await assertion;
   });
 
-  it("updates the in-memory PIN used by transfer verification", async () => {
+  it("updates the settings PIN without restricting the demo transfer PIN", async () => {
     const change = mockChangePin({
       currentPin: MOCK_TRANSFER_PIN,
       newPin: "4321",
@@ -121,10 +120,9 @@ describe("mock profile service", () => {
     await jest.advanceTimersByTimeAsync(450);
     await expect(verify).resolves.toBeUndefined();
 
-    const reject = mockVerifyPin(MOCK_TRANSFER_PIN);
-    const assertion = expect(reject).rejects.toBeInstanceOf(PinError);
+    const originalDemoPin = mockVerifyPin(MOCK_TRANSFER_PIN);
     await jest.advanceTimersByTimeAsync(450);
-    await assertion;
+    await expect(originalDemoPin).resolves.toBeUndefined();
   });
 
   it("resets the demo PIN to the default", async () => {

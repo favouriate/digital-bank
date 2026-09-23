@@ -131,12 +131,16 @@ export function ThemeToggle({ className, compact = false }: ThemeToggleProps) {
         <Sun className="size-4 dark:hidden" aria-hidden="true" />
         <Moon className="hidden size-4 dark:block" aria-hidden="true" />
         {compact ? null : (
-          <span className="text-sm font-medium">
+          <span className="hidden text-sm font-medium sm:inline">
             {OPTIONS.find((option) => option.value === theme)?.label ?? "System"}
           </span>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-40">
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-40 max-w-[calc(100vw-3rem)]"
+      >
         <ThemeMenuItems theme={theme} onThemeChange={handleThemeChange} />
       </DropdownMenuContent>
     </DropdownMenu>

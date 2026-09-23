@@ -1,4 +1,14 @@
-import { mockAccountSummary } from "@/features/dashboard/mocks/mock-account";
+import {
+  getAvailableBalance,
+  toUsdMinor,
+} from "@/features/dashboard/mocks/mock-account";
+import { usdFromDest } from "@/features/transfers/lib/convert-amount";
+import {
+  commitDemoDeposit,
+  hydrateDemoLedger,
+} from "@/mocks/demo-ledger";
+import { isCurrencyCode } from "@/lib/currency";
+import type { Transaction } from "@/types/transaction";
 
 import {
   MAX_ADD_MONEY_AMOUNT,
@@ -13,7 +23,6 @@ import { AddMoneyError } from "../types/add-money";
 import {
   getFundingMethods,
   getMockDeposits,
-  prependMockDeposit,
 } from "./mock-funding";
 
 export { AddMoneyError };
@@ -28,6 +37,7 @@ function wait(ms: number) {
 export const DEMO_FAILURE_AMOUNT = 13;
 
 export async function mockGetAddMoneyPage(): Promise<AddMoneyPageData> {
+  hydrateDemoLedger();
   await wait(450);
 
   return {
@@ -41,10 +51,23 @@ export async function mockGetAddMoneyPage(): Promise<AddMoneyPageData> {
 export async function mockAddMoney(
   request: AddMoneyRequest,
 ): Promise<AddMoneyResult> {
+  hydrateDemoLedger();
   await wait(450);
 
   if (request.amount === DEMO_FAILURE_AMOUNT) {
     throw new AddMoneyError();
+  }
+
+  if (
+    !Number.isFinite(request.amount) ||
+    request.amount < MIN_ADD_MONEY_AMOUNT ||
+    request.amount > MAX_ADD_MONEY_AMOUNT
+  ) {
+    throw new AddMoneyError("Amount is outside deposit limits.");
+  }
+
+  if (!isCurrencyCode(request.currency)) {
+    throw new AddMoneyError("Select a supported currency.");
   }
 
   const method = getFundingMethods().find((item) => item.id === request.methodId);
@@ -53,25 +76,34 @@ export async function mockAddMoney(
     throw new AddMoneyError("That funding method is not available.");
   }
 
-  mockAccountSummary.availableBalance += request.amount;
-
   const depositId = `dep-${Date.now()}`;
-  prependMockDeposit({
+  const transaction: Transaction = {
     id: depositId,
-    sourceLabel: method.label,
-    sourceDetail: method.accountMask
-      ? `From ${method.label} ${method.accountMask}`
-      : `From ${method.label}`,
+    description: method.accountMask
+      ? `Added money from ${method.label} ${method.accountMask}`
+      : `Added money from ${method.label}`,
+    counterparty: method.label,
+    reference: `OP-${depositId}`,
+    accountMask: method.accountMask ?? "External account",
     amount: request.amount,
-    currency: "USD",
+    currency: request.currency,
     status: "completed",
     occurredAt: new Date().toISOString(),
-  });
+    type: "deposit",
+    direction: "incoming",
+    bankName: method.label,
+    category: "funding",
+    fee: 0,
+  };
+  const usdCreditMinor = toUsdMinor(usdFromDest(request.amount, request.currency));
+  commitDemoDeposit(transaction, usdCreditMinor);
 
   return {
     depositId,
     methodId: request.methodId,
     amount: request.amount,
-    availableBalance: mockAccountSummary.availableBalance,
+    currency: request.currency,
+    availableBalance: getAvailableBalance(),
+    transaction,
   };
 }

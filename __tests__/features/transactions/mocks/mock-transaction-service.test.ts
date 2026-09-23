@@ -8,6 +8,7 @@ const defaultParams = {
   pageSize: TRANSACTION_PAGE_SIZE,
   search: "",
   status: "all" as const,
+  type: "all" as const,
   startDate: null,
   endDate: null,
 };
@@ -60,6 +61,20 @@ describe("mock transaction list", () => {
     expect(pending.length).toBeGreaterThan(0);
     expect(pending.every((item) => item.status === "pending")).toBe(true);
     expect(failed.every((item) => item.status === "failed")).toBe(true);
+  });
+
+  it("filters to money received", () => {
+    const received = filterMockTransactions({
+      search: "",
+      status: "all",
+      type: "receive",
+      startDate: null,
+      endDate: null,
+    });
+
+    expect(received.length).toBeGreaterThan(0);
+    expect(received.every((item) => item.type === "receive")).toBe(true);
+    expect(received.some((item) => item.id === "txn-david-500")).toBe(true);
   });
 
   it("matches search case-insensitively across description, bank, and reference", () => {

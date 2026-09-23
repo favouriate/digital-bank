@@ -269,4 +269,12 @@ function buildMockTransactions(): Transaction[] {
   return [...FEATURED_TRANSACTIONS, ...generated];
 }
 
-export const mockTransactions: Transaction[] = buildMockTransactions();
+const SEED_TRANSACTIONS = buildMockTransactions();
+
+export const mockTransactions: Transaction[] = SEED_TRANSACTIONS.map(
+  (transaction) => ({ ...transaction }),
+);
+
+export function getSeedTransactions(): Transaction[] {
+  return SEED_TRANSACTIONS.map((transaction) => ({ ...transaction }));
+}

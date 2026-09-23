@@ -1,4 +1,5 @@
 import { mockAccountSummary } from "@/features/dashboard/mocks/mock-account";
+import { mockTransactions } from "@/mocks/transactions";
 
 import { toShortCardMask } from "../lib/format";
 import type { AddMoneyDeposit, FundingMethod } from "../types/add-money";
@@ -75,7 +76,25 @@ let deposits: AddMoneyDeposit[] = INITIAL_DEPOSITS.map((deposit) => ({
 }));
 
 export function getMockDeposits() {
-  return deposits;
+  const ledgerDeposits: AddMoneyDeposit[] = mockTransactions
+    .filter((transaction) => transaction.type === "deposit")
+    .slice(0, 3)
+    .map((transaction) => ({
+      id: transaction.id,
+      sourceLabel: transaction.counterparty,
+      sourceDetail: transaction.description,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      status: transaction.status,
+      occurredAt: transaction.occurredAt,
+    }));
+
+  return [
+    ...ledgerDeposits,
+    ...deposits.filter(
+      (deposit) => !ledgerDeposits.some((item) => item.id === deposit.id),
+    ),
+  ].slice(0, 3);
 }
 
 export function prependMockDeposit(deposit: AddMoneyDeposit) {

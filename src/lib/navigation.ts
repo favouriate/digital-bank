@@ -1,14 +1,9 @@
 import {
-  Activity,
-  BarChart3,
-  FileText,
-  HelpCircle,
+  ArrowLeftRight,
+  CircleHelp,
   LayoutDashboard,
-  MessageSquare,
-  Receipt,
   Send,
   Settings,
-  Wallet,
 } from "lucide-react";
 
 import type {
@@ -16,7 +11,7 @@ import type {
   NavigationPlacement,
 } from "@/types/navigation";
 
-export const navigationItems: NavigationItem[] = [
+export const primaryNavigation: NavigationItem[] = [
   {
     id: "dashboard",
     label: "Dashboard",
@@ -25,70 +20,44 @@ export const navigationItems: NavigationItem[] = [
     placements: ["sidebar", "mobile-tab"],
   },
   {
-    id: "invoices",
-    label: "Invoices",
-    href: "/invoices",
-    icon: FileText,
-    placements: ["sidebar", "mobile-menu"],
-  },
-  {
-    id: "messages",
-    label: "Messages",
-    href: "/messages",
-    icon: MessageSquare,
-    placements: ["sidebar", "mobile-menu"],
-    badgeKey: "messages",
-  },
-  {
-    id: "wallets",
-    label: "My Wallets",
-    href: "/wallets",
-    icon: Wallet,
-    placements: ["sidebar", "mobile-menu"],
-  },
-  {
-    id: "activity",
-    label: "Activity",
-    href: "/activity",
-    icon: Activity,
-    placements: ["sidebar", "mobile-menu"],
-  },
-  {
-    id: "analytics",
-    label: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
-    placements: ["sidebar", "mobile-menu"],
-  },
-  {
     id: "transfers",
-    label: "Transfer",
+    label: "Send Money",
     href: "/transfers",
     icon: Send,
-    placements: ["mobile-tab"],
+    placements: ["sidebar", "mobile-tab"],
   },
   {
     id: "transactions",
     label: "Transactions",
     href: "/transactions",
-    icon: Receipt,
-    placements: ["mobile-tab"],
+    icon: ArrowLeftRight,
+    placements: ["sidebar", "mobile-tab"],
   },
-  {
-    id: "support",
-    label: "Get Help",
-    href: "/support",
-    icon: HelpCircle,
-    placements: ["sidebar-footer", "mobile-menu"],
-  },
+];
+
+export const secondaryNavigation: NavigationItem[] = [
   {
     id: "settings",
     label: "Settings",
     href: "/settings",
     icon: Settings,
-    placements: ["sidebar-footer", "mobile-tab"],
+    placements: ["sidebar-footer", "mobile-more"],
+  },
+  {
+    id: "support",
+    label: "Support",
+    href: "/support",
+    icon: CircleHelp,
+    placements: ["sidebar-footer", "mobile-more"],
   },
 ];
+
+export const navigationItems: NavigationItem[] = [
+  ...primaryNavigation,
+  ...secondaryNavigation,
+];
+
+const MORE_HREFS = ["/settings", "/support"] as const;
 
 export function getNavigationByPlacement(placement: NavigationPlacement) {
   return navigationItems.filter((item) => item.placements.includes(placement));
@@ -100,4 +69,10 @@ export function isNavItemActive(pathname: string, href: string) {
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function isMoreRoute(pathname: string) {
+  return MORE_HREFS.some(
+    (href) => pathname === href || pathname.startsWith(`${href}/`),
+  );
 }

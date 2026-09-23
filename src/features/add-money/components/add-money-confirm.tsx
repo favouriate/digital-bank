@@ -83,7 +83,7 @@ export function AddMoneyConfirm({
         </div>
         <div className="flex flex-col gap-4 lg:col-span-5">
           <SecurityNotice />
-          <ImportantNotice />
+          <ImportantNotice currency={currency} />
         </div>
       </div>
     </div>

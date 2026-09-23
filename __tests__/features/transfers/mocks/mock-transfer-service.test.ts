@@ -1,4 +1,7 @@
-import { mockAccountSummary } from "@/features/dashboard/mocks/mock-account";
+import {
+  INITIAL_AVAILABLE_BALANCE,
+  mockAccountSummary,
+} from "@/features/dashboard/mocks/mock-account";
 import { mockTransactions } from "@/mocks/transactions";
 import {
   DEMO_FAILURE_AMOUNT,
@@ -12,7 +15,7 @@ import {
 import { MOCK_TRANSFER_PIN } from "@/features/transfers/schemas/transfer-schema";
 
 describe("mockSendTransfer", () => {
-  const originalBalance = mockAccountSummary.availableBalance;
+  const originalBalance = INITIAL_AVAILABLE_BALANCE;
   const originalCount = mockTransactions.length;
 
   beforeEach(() => {
@@ -29,6 +32,8 @@ describe("mockSendTransfer", () => {
 
   it("debits the account for a valid transfer", async () => {
     const promise = mockSendTransfer({
+      transferId: crypto.randomUUID(),
+      currency: "USD",
       recipientId: "contact-astrid-hayes",
       amount: 100,
       note: "Lunch",
@@ -52,6 +57,8 @@ describe("mockSendTransfer", () => {
 
   it("rejects the demo failure amount without changing the balance", async () => {
     const promise = mockSendTransfer({
+      transferId: crypto.randomUUID(),
+      currency: "USD",
       recipientId: "contact-astrid-hayes",
       amount: DEMO_FAILURE_AMOUNT,
       note: "",
@@ -64,8 +71,53 @@ describe("mockSendTransfer", () => {
     expect(mockTransactions).toHaveLength(originalCount);
   });
 
+  it("debits the account again from the remaining balance", async () => {
+    const first = mockSendTransfer({
+      transferId: crypto.randomUUID(),
+      currency: "USD",
+      recipientId: "contact-astrid-hayes",
+      amount: 100,
+      note: "",
+    });
+    await jest.advanceTimersByTimeAsync(450);
+    await first;
+
+    const promise = mockSendTransfer({
+      transferId: crypto.randomUUID(),
+      currency: "USD",
+      recipientId: "contact-astrid-hayes",
+      amount: 50,
+      note: "",
+    });
+    await jest.advanceTimersByTimeAsync(450);
+
+    await expect(promise).resolves.toMatchObject({
+      amount: 50,
+      outcome: "success",
+      availableBalance: originalBalance - 150,
+    });
+    expect(mockAccountSummary.availableBalance).toBe(originalBalance - 150);
+  });
+
+  it("rejects an amount above the remaining balance", async () => {
+    mockAccountSummary.availableBalance = 40;
+    const promise = mockSendTransfer({
+      transferId: crypto.randomUUID(),
+      currency: "USD",
+      recipientId: "contact-astrid-hayes",
+      amount: 40.01,
+      note: "",
+    });
+    const assertion = expect(promise).rejects.toBeInstanceOf(TransferError);
+    await jest.advanceTimersByTimeAsync(450);
+    await assertion;
+    expect(mockAccountSummary.availableBalance).toBe(40);
+  });
+
   it("returns pending for the demo pending amount", async () => {
     const promise = mockSendTransfer({
+      transferId: crypto.randomUUID(),
+      currency: "USD",
       recipientId: "contact-astrid-hayes",
       amount: DEMO_PENDING_AMOUNT,
       note: "",
@@ -96,9 +148,16 @@ describe("mockVerifyPin", () => {
     await expect(promise).resolves.toBeUndefined();
   });
 
-  it("rejects an incorrect PIN", async () => {
-    const promise = mockVerifyPin("0000");
+  it("accepts any 4-digit PIN", async () => {
+    const promise = mockVerifyPin("9090");
+    await jest.advanceTimersByTimeAsync(450);
+    await expect(promise).resolves.toBeUndefined();
+  });
+
+  it("rejects a malformed PIN at the service boundary", async () => {
+    const promise = mockVerifyPin("12ab");
     const assertion = expect(promise).rejects.toBeInstanceOf(PinError);
+
     await jest.advanceTimersByTimeAsync(450);
     await assertion;
   });

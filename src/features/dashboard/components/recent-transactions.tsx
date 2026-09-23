@@ -47,7 +47,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
   return (
     <Link
       href={`/transactions/${transaction.id}`}
-      className="grid min-h-11 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-1 py-3 transition-colors hover:bg-muted/60 focus-visible:ring-offset-0"
+      className="grid min-h-11 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-1 py-3 transition-colors hover:bg-muted/60 focus-visible:ring-offset-0 lg:py-2"
     >
       <span
         className={cn(
@@ -67,7 +67,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
       </div>
       <div className="text-right">
         <p className={cn("text-sm font-semibold", amountClass)}>
-          {formatAmount(transaction.amount)}
+          {formatAmount(transaction.amount, transaction.currency)}
         </p>
         <p className="text-xs text-muted-foreground">{transaction.currency}</p>
       </div>
@@ -77,7 +77,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
 
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl lg:py-3 lg:[--card-spacing:--spacing(3)]">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">
           Recent Transactions

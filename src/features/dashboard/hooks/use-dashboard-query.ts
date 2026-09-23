@@ -10,5 +10,6 @@ export function useDashboardQuery() {
   return useQuery({
     queryKey: dashboardQueryKey,
     queryFn: getDashboard,
+    refetchOnMount: "always",
   });
 }

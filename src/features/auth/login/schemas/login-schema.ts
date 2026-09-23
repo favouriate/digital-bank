@@ -6,10 +6,7 @@ export const loginSchema = z.object({
     .trim()
     .min(1, "Enter your email")
     .pipe(z.email("Enter a valid email")),
-  password: z
-    .string()
-    .min(1, "Enter your password")
-    .min(8, "Password must be at least 8 characters"),
+  password: z.string().min(1, "Enter your password"),
   rememberMe: z.boolean(),
 });
 

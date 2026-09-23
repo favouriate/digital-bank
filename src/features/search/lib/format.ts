@@ -1,5 +1,6 @@
 import { formatSignedAmount } from "@/features/transactions/lib/format-amount";
 import type { Transaction } from "@/types/transaction";
+import type { CurrencyCode } from "@/types/currency";
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -7,7 +8,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export function formatAmount(amount: number, currency = "USD") {
+export function formatAmount(amount: number, currency: CurrencyCode) {
   return formatSignedAmount(amount, currency);
 }
 

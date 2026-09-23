@@ -41,5 +41,6 @@ export function useRecipientLookupQuery({
     queryFn: () => lookupRecipient(input),
     enabled,
     retry: false,
+    staleTime: Infinity,
   });
 }

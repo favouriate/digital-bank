@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { isCurrencyCode } from "@/lib/currency";
+
 import { useSendTransferMutation } from "../hooks/use-send-transfer-mutation";
 import { useTransferQuery } from "../hooks/use-transfer-query";
 import { useValidateTransferMutation } from "../hooks/use-validate-transfer-mutation";
@@ -9,14 +11,15 @@ import { useVerifyPinMutation } from "../hooks/use-verify-pin-mutation";
 import { createTransferAmountSchema } from "../schemas/amount-schema";
 import { transferPinSchema } from "../schemas/transfer-schema";
 import {
+  beginTransferOperation,
   resetTransferDraft,
   setTransferStep,
   useTransferDraftStore,
 } from "../store/transfer-draft-store";
 import { PinError, TransferError, type Recipient } from "../types/transfer";
 
+import { SendMoneyAmount } from "./send-money-amount";
 import { SendMoneyCompose } from "./send-money-compose";
-import { SendMoneyDetails } from "./send-money-details";
 import { SendMoneyErrorState } from "./send-money-error";
 import { SendMoneyPin } from "./send-money-pin";
 import { SendMoneyProcessing } from "./send-money-processing";
@@ -37,15 +40,18 @@ export function SendMoneyView() {
     (state) => state.resolvedRecipient,
   );
   const amount = useTransferDraftStore((state) => state.amount);
-  const amountInput = useTransferDraftStore((state) => state.amountInput);
   const note = useTransferDraftStore((state) => state.note);
+  const destCurrency = useTransferDraftStore((state) => state.destinationCurrencyCode);
 
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState<string | null>(null);
-  const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [amountError, setAmountError] = useState<string | null>(null);
   const [failureMessage, setFailureMessage] = useState(
     "We couldn't send money right now. Please try again.",
   );
+
+  const hasRecipient = Boolean(resolvedRecipient);
+  const hasAmount = amount !== null;
 
   useEffect(() => {
     const current = useTransferDraftStore.getState();
@@ -57,11 +63,28 @@ export function SendMoneyView() {
       current.step === "validating" ||
       current.step === "pin"
     ) {
-      setTransferStep("compose");
+      setTransferStep(current.resolvedRecipient ? "amount" : "compose");
       setPin("");
       setPinError(null);
     }
   }, []);
+
+  useEffect(() => {
+    if (step === "amount" && !hasRecipient) {
+      setTransferStep("compose");
+      return;
+    }
+
+    if (
+      (step === "review" ||
+        step === "pin" ||
+        step === "processing" ||
+        step === "details") &&
+      (!hasRecipient || !hasAmount)
+    ) {
+      setTransferStep(hasRecipient ? "amount" : "compose");
+    }
+  }, [hasAmount, hasRecipient, step]);
 
   if (pageQuery.isPending) {
     return <SendMoneySkeleton />;
@@ -79,49 +102,103 @@ export function SendMoneyView() {
           name: resolvedRecipient.name,
           email: "",
           initials: resolvedRecipient.initials,
-          avatarUrl: null,
+          avatarUrl: resolvedRecipient.avatarUrl,
           frequent: false,
         }
       : null);
+  function fallbackStep() {
+    if (step === "amount" && !hasRecipient) {
+      return "compose" as const;
+    }
+
+    if (
+      (step === "review" ||
+        step === "pin" ||
+        step === "processing" ||
+        step === "details") &&
+      (!hasRecipient || !hasAmount)
+    ) {
+      return hasRecipient ? ("amount" as const) : ("compose" as const);
+    }
+
+    return step;
+  }
+
+  const renderStep = fallbackStep();
 
   function currentRequest() {
+    const draft = useTransferDraftStore.getState();
+    const currency = draft.destinationCurrencyCode;
+    if (!isCurrencyCode(currency)) {
+      setAmountError("Select a supported currency.");
+      return null;
+    }
     const parsed = createTransferAmountSchema(
       pageQuery.data?.availableBalance ?? 0,
-    ).safeParse(amountInput);
-    const nextAmount = parsed.success ? parsed.data : amount;
+      currency,
+    ).safeParse(draft.amountInput);
+    if (!parsed.success) {
+      setAmountError(parsed.error.issues[0]?.message ?? "Enter a valid amount.");
+      return null;
+    }
+    const destAmount = parsed.data;
+    const recipient =
+      pageQuery.data?.recipients.find(
+        (item) => item.id === draft.recipientId,
+      ) ??
+      (draft.resolvedRecipient
+        ? {
+            id: draft.resolvedRecipient.id,
+            name: draft.resolvedRecipient.name,
+            email: "",
+            initials: draft.resolvedRecipient.initials,
+            avatarUrl: draft.resolvedRecipient.avatarUrl,
+            frequent: false,
+          }
+        : null);
 
-    if (!selectedRecipient || nextAmount === null) {
+    if (!recipient || destAmount === null) {
       return null;
     }
 
     return {
-      recipientId: selectedRecipient.id,
-      amount: nextAmount,
-      note,
+      transferId: draft.transferId ?? beginTransferOperation(),
+      bankName: draft.resolvedRecipient?.bankName,
+      accountMask: draft.resolvedRecipient?.accountNumberMasked,
+      recipientId: recipient.id,
+      amount: destAmount,
+      currency,
+      note: draft.note,
+      recipientName: recipient.name,
     };
   }
 
+  function returnToAmountOrCompose() {
+    setTransferStep(hasRecipient ? "amount" : "compose");
+  }
+
   async function goValidateThenReview() {
+    beginTransferOperation();
     const request = currentRequest();
 
     if (!request) {
-      setTransferStep("compose");
+      returnToAmountOrCompose();
       return;
     }
 
-    setDetailsError(null);
+    setAmountError(null);
     setTransferStep("validating");
 
     try {
       await validateMutation.mutateAsync(request);
       setTransferStep("review");
     } catch (error) {
-      setDetailsError(
+      setAmountError(
         error instanceof TransferError
           ? error.message
           : "We couldn't validate this transfer. Please try again.",
       );
-      setTransferStep("details");
+      setTransferStep("amount");
     }
   }
 
@@ -129,7 +206,7 @@ export function SendMoneyView() {
     const request = currentRequest();
 
     if (!request) {
-      setTransferStep("compose");
+      returnToAmountOrCompose();
       return;
     }
 
@@ -169,19 +246,21 @@ export function SendMoneyView() {
       return;
     }
 
+    setPin("");
     await submitTransfer();
   }
 
   if (
-    (step === "success" || step === "pending") &&
+    (renderStep === "success" || renderStep === "pending") &&
     selectedRecipient &&
-    amount !== null
+    amount !== null && sendMutation.data
   ) {
     return (
       <SendMoneyResult
-        status={step}
+        status={renderStep}
         recipient={selectedRecipient}
-        amount={amount}
+        amount={sendMutation.data.amount}
+        currency={sendMutation.data.currency}
         onDone={() => {
           resetTransferDraft();
           setPin("");
@@ -190,7 +269,7 @@ export function SendMoneyView() {
     );
   }
 
-  if (step === "failure") {
+  if (renderStep === "failure") {
     return (
       <SendMoneyResult
         status="failure"
@@ -201,23 +280,28 @@ export function SendMoneyView() {
         onChangeDetails={() => {
           setPin("");
           setPinError(null);
-          setTransferStep("compose");
+          returnToAmountOrCompose();
         }}
       />
     );
   }
 
-  if (step === "processing" && selectedRecipient && amount !== null) {
+  if (renderStep === "processing" && selectedRecipient && amount !== null && isCurrencyCode(destCurrency)) {
     return (
-      <SendMoneyProcessing recipient={selectedRecipient} amount={amount} />
+      <SendMoneyProcessing
+        recipient={selectedRecipient}
+        amount={amount}
+        currency={destCurrency}
+      />
     );
   }
 
-  if (step === "pin" && selectedRecipient && amount !== null) {
+  if (renderStep === "pin" && selectedRecipient && amount !== null && isCurrencyCode(destCurrency)) {
     return (
       <SendMoneyPin
         recipient={selectedRecipient}
         amount={amount}
+        currency={destCurrency}
         pin={pin}
         error={pinError}
         isPending={verifyPinMutation.isPending || sendMutation.isPending}
@@ -233,29 +317,32 @@ export function SendMoneyView() {
     );
   }
 
-  if (step === "review" && selectedRecipient && amount !== null) {
+  if (renderStep === "review" && selectedRecipient && amount !== null && isCurrencyCode(destCurrency)) {
     return (
       <SendMoneyReview
         recipient={selectedRecipient}
+        resolvedRecipient={resolvedRecipient}
         amount={amount}
+        currency={destCurrency}
         note={note}
-        onBack={() => setTransferStep("details")}
+        onBack={() => setTransferStep("amount")}
         onContinue={() => setTransferStep("pin")}
       />
     );
   }
 
-  if (step === "validating") {
+  if (renderStep === "validating") {
     return <SendMoneyValidating />;
   }
 
-  if (step === "details" && selectedRecipient && amount !== null) {
+  if (renderStep === "amount" && resolvedRecipient) {
     return (
-      <SendMoneyDetails
-        recipient={selectedRecipient}
-        amount={amount}
-        error={detailsError}
+      <SendMoneyAmount
+        data={pageQuery.data}
+        recipient={resolvedRecipient}
+        error={amountError}
         onBack={() => setTransferStep("compose")}
+        onDismissError={() => setAmountError(null)}
         onContinue={() => {
           void goValidateThenReview();
         }}
@@ -263,16 +350,5 @@ export function SendMoneyView() {
     );
   }
 
-  return (
-    <SendMoneyCompose
-      data={pageQuery.data}
-      onContinueTo={(next) => {
-        if (next === "review") {
-          void goValidateThenReview();
-          return;
-        }
-        setTransferStep("details");
-      }}
-    />
-  );
+  return <SendMoneyCompose data={pageQuery.data} />;
 }

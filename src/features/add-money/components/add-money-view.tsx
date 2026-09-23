@@ -65,6 +65,7 @@ export function AddMoneyView() {
       await mutation.mutateAsync({
         methodId: selectedMethod.id,
         amount: nextAmount,
+        currency,
       });
       setStep("success");
     } catch (error) {

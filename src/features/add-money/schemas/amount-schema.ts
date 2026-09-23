@@ -13,10 +13,10 @@ export const addMoneyAmountSchema = z
     message: "Enter a valid amount",
   })
   .refine((value) => value >= MIN_ADD_MONEY_AMOUNT, {
-    message: "Minimum amount is $10.00",
+    message: "Minimum amount is 10.00",
   })
   .refine((value) => value <= MAX_ADD_MONEY_AMOUNT, {
-    message: "Maximum amount is $10,000.00",
+    message: "Maximum amount is 10,000.00",
   });
 
 export type ParsedAddMoneyAmount = z.infer<typeof addMoneyAmountSchema>;

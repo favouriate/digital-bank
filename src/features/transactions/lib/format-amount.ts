@@ -1,10 +1,8 @@
-export function formatSignedAmount(amount: number, currency = "USD") {
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Math.abs(amount));
+import { formatMoney as formatCurrency } from "@/lib/currency";
+import type { CurrencyCode } from "@/types/currency";
+
+export function formatSignedAmount(amount: number, currency: CurrencyCode = "USD") {
+  const formatted = formatCurrency(Math.abs(amount), currency);
 
   if (amount > 0) {
     return `+${formatted}`;
@@ -17,16 +15,11 @@ export function formatSignedAmount(amount: number, currency = "USD") {
   return formatted;
 }
 
-export function formatMoney(amount: number, currency = "USD") {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Math.abs(amount));
+export function formatMoney(amount: number, currency: CurrencyCode = "USD") {
+  return formatCurrency(Math.abs(amount), currency);
 }
 
-export function formatCurrencyAmount(amount: number, currency = "USD") {
+export function formatCurrencyAmount(amount: number, currency: CurrencyCode = "USD") {
   return `${formatMoney(amount, currency)} ${currency}`;
 }
 

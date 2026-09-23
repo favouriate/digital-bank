@@ -1,4 +1,5 @@
-import type { TransactionStatus } from "@/types/transaction";
+import type { CurrencyCode } from "@/types/currency";
+import type { Transaction, TransactionStatus } from "@/types/transaction";
 
 export type FundingMethodId =
   | "debit-card"
@@ -22,7 +23,7 @@ export type AddMoneyDeposit = {
   sourceLabel: string;
   sourceDetail: string;
   amount: number;
-  currency: "USD";
+  currency: CurrencyCode;
   status: TransactionStatus;
   occurredAt: string;
 };
@@ -37,13 +38,16 @@ export type AddMoneyPageData = {
 export type AddMoneyRequest = {
   methodId: FundingMethodId;
   amount: number;
+  currency: CurrencyCode;
 };
 
 export type AddMoneyResult = {
   depositId: string;
   methodId: FundingMethodId;
   amount: number;
+  currency: CurrencyCode;
   availableBalance: number;
+  transaction: Transaction;
 };
 
 export class AddMoneyError extends Error {

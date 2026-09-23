@@ -1,7 +1,18 @@
-import { mockAccountSummary } from "@/features/dashboard/mocks/mock-account";
+import {
+  getAvailableBalanceMinor,
+  toUsdMinor,
+  getAvailableBalance,
+} from "@/features/dashboard/mocks/mock-account";
+import {
+  hydrateDemoLedger,
+  commitDemoTransfer,
+  resetDemoLedger,
+} from "@/mocks/demo-ledger";
 import { mockTransactions } from "@/mocks/transactions";
 import type { Transaction } from "@/types/transaction";
+import { isCurrencyCode } from "@/lib/currency";
 
+import { usdFromDest } from "../lib/convert-amount";
 import { recipientInitials } from "../lib/format";
 import {
   MAX_TRANSFER_AMOUNT,
@@ -24,10 +35,6 @@ import {
 
 export { PinError, TransferError };
 
-const INITIAL_TRANSACTIONS: Transaction[] = mockTransactions.map(
-  (transaction) => ({ ...transaction }),
-);
-
 let demoPin = MOCK_TRANSFER_PIN;
 
 export function getDemoPin() {
@@ -48,18 +55,19 @@ function wait(ms: number) {
   });
 }
 
-/** Demo amount that fails, similar to Add Money $13. */
+/** Demo amount that fails. */
 export const DEMO_FAILURE_AMOUNT = 13;
 
 /** Demo amount that stays pending. */
 export const DEMO_PENDING_AMOUNT = 17;
 
 export async function mockGetTransferPage(): Promise<TransferPageData> {
+  hydrateDemoLedger();
   await wait(450);
 
   return {
     recipients: getMockRecipients(),
-    availableBalance: mockAccountSummary.availableBalance,
+    availableBalance: getAvailableBalance(),
     minAmount: MIN_TRANSFER_AMOUNT,
     maxAmount: MAX_TRANSFER_AMOUNT,
   };
@@ -82,115 +90,134 @@ export async function mockAddRecipient(
   return addMockRecipient(recipient);
 }
 
-export async function mockValidateTransfer(
-  request: TransferRequest,
-): Promise<void> {
-  await wait(450);
-
-  const recipient = getMockRecipients().find(
+function resolveTransferRecipient(request: TransferRequest): Recipient | null {
+  const catalogRecipient = getMockRecipients().find(
     (item) => item.id === request.recipientId,
   );
 
-  if (!recipient) {
-    throw new TransferError("That recipient is not available.");
+  if (catalogRecipient) {
+    return catalogRecipient;
   }
 
-  if (request.amount > mockAccountSummary.availableBalance) {
-    throw new TransferError("Amount exceeds available balance.");
+  const name = request.recipientName?.trim();
+
+  if (!request.recipientId.trim() || !name) {
+    return null;
   }
+
+  return {
+    id: request.recipientId,
+    name,
+    email: "",
+    initials: recipientInitials(name),
+    avatarUrl: null,
+    frequent: false,
+  };
+}
+
+export async function mockValidateTransfer(
+  request: TransferRequest,
+): Promise<void> {
+  hydrateDemoLedger();
+  await wait(450);
+
+  validateRequest(request);
+}
+
+function validateRequest(request: TransferRequest) {
+  const recipient = resolveTransferRecipient(request);
+  if (!recipient) throw new TransferError("That recipient is not available.");
+  if (!request.transferId?.trim()) throw new TransferError("Missing transfer ID.");
+  if (!Number.isFinite(request.amount) || request.amount <= 0) {
+    throw new TransferError("Enter a valid amount.");
+  }
+  if (!isCurrencyCode(request.currency)) throw new TransferError("Select a supported currency.");
+  const amountMinor = toUsdMinor(usdFromDest(request.amount, request.currency));
+  if (amountMinor > getAvailableBalanceMinor()) {
+    throw new TransferError("Insufficient balance.");
+  }
+  if (amountMinor < MIN_TRANSFER_AMOUNT * 100 || amountMinor > MAX_TRANSFER_AMOUNT * 100) {
+    throw new TransferError("Amount is outside transfer limits.");
+  }
+  return { recipient, amountMinor };
 }
 
 export async function mockVerifyPin(pin: string): Promise<void> {
   await wait(450);
 
-  if (pin !== demoPin) {
-    throw new PinError();
+  if (!/^\d{4}$/.test(pin)) {
+    throw new PinError("Enter a 4-digit PIN.");
   }
 }
 
 export async function mockSendTransfer(
   request: TransferRequest,
 ): Promise<TransferResult> {
+  request = { ...request };
+  hydrateDemoLedger();
   await wait(450);
 
-  const recipient = getMockRecipients().find(
-    (item) => item.id === request.recipientId,
-  );
-
-  if (!recipient) {
-    throw new TransferError("That recipient is not available.");
+  // The persisted transaction catalog doubles as the idempotency registry.
+  // No await between this check and commit: concurrent calls cannot interleave.
+  const existing = mockTransactions.find((item) => item.transferId === request.transferId);
+  if (existing) {
+    if (existing.recipientId !== request.recipientId || existing.amount !== -request.amount
+      || existing.currency !== request.currency
+      || (existing.note ?? "") !== request.note.trim()
+      || existing.bankName !== (request.bankName ?? "OpenPay")
+      || existing.accountMask !== (request.accountMask ?? "****")) {
+      throw new TransferError("This transfer ID has already been used for different details.");
+    }
+    return resultFor(existing, request);
   }
 
-  if (request.amount === DEMO_FAILURE_AMOUNT) {
-    throw new TransferError();
-  }
+  const { recipient, amountMinor } = validateRequest(request);
+  const settlementAmount = amountMinor / 100;
+  if (settlementAmount === DEMO_FAILURE_AMOUNT) throw new TransferError();
 
-  const transferId = `txn-send-${Date.now()}`;
-  const note = request.note.trim();
-  const created: Omit<Transaction, "status"> = {
-    id: transferId,
-    description: `Send to ${recipient.name}`,
+  // Current demo fee is zero. Pending records do not reserve or debit funds.
+  const feeMinor = 0;
+  const totalDebitMinor = amountMinor + feeMinor;
+  if (totalDebitMinor > getAvailableBalanceMinor()) throw new TransferError("Insufficient balance.");
+  const transaction: Transaction = {
+    id: request.transferId,
+    transferId: request.transferId,
+    recipientId: request.recipientId,
+    description: `Sent to ${recipient.name}`,
     counterparty: recipient.name,
-    reference: `OP-${String(Date.now()).slice(-6)}`,
-    accountMask: "**** 54215",
+    reference: `OP-${request.transferId}`,
+    accountMask: request.accountMask ?? "****",
     amount: -request.amount,
-    currency: "USD",
+    fee: feeMinor / 100,
+    currency: request.currency,
     occurredAt: new Date().toISOString(),
     type: "transfer",
     direction: "outgoing",
-    bankName: "OpenPay",
+    bankName: request.bankName ?? "OpenPay",
     category: "transfer",
-    note: note || undefined,
+    note: request.note.trim() || undefined,
     counterpartyEmail: recipient.email,
+    status: settlementAmount === DEMO_PENDING_AMOUNT ? "pending" : "completed",
   };
-
-  if (request.amount === DEMO_PENDING_AMOUNT) {
-    prependMockTransfer({
-      ...created,
-      status: "pending",
-    });
-
-    return {
-      transferId,
-      recipientId: request.recipientId,
-      amount: request.amount,
-      availableBalance: mockAccountSummary.availableBalance,
-      outcome: "pending",
-      note,
-    };
-  }
-
-  if (request.amount > mockAccountSummary.availableBalance) {
-    throw new TransferError("Amount exceeds available balance.");
-  }
-
-  mockAccountSummary.availableBalance -= request.amount;
-
-  prependMockTransfer({
-    ...created,
-    status: "completed",
-  });
-
-  return {
-    transferId,
-    recipientId: request.recipientId,
-    amount: request.amount,
-    availableBalance: mockAccountSummary.availableBalance,
-    outcome: "success",
-    note,
-  };
+  commitDemoTransfer(transaction, transaction.status === "completed" ? totalDebitMinor : 0);
+  return resultFor(transaction, request);
 }
 
-export function prependMockTransfer(transaction: Transaction) {
-  mockTransactions.unshift(transaction);
+function resultFor(transaction: Transaction, request: TransferRequest): TransferResult {
+  return {
+    transferId: transaction.id,
+    recipientId: request.recipientId,
+    amount: -transaction.amount,
+    currency: transaction.currency,
+    availableBalance: getAvailableBalance(),
+    outcome: transaction.status === "pending" ? "pending" : "success",
+    note: transaction.note ?? "",
+    transaction: { ...transaction },
+  };
 }
 
 export function resetTransferMocks() {
   resetTransferRecipientMocks();
   resetDemoPin();
-  mockTransactions.splice(
-    0,
-    mockTransactions.length,
-    ...INITIAL_TRANSACTIONS.map((transaction) => ({ ...transaction })),
-  );
+  resetDemoLedger();
 }
