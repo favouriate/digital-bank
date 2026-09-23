@@ -50,8 +50,8 @@ export function TotalBalanceCard({
     "text-balance-foreground hover:bg-balance-foreground/10 hover:text-balance-foreground focus-visible:ring-balance-foreground/80 focus-visible:ring-offset-0";
 
   return (
-    <Card className="gap-0 rounded-2xl border-0 bg-linear-to-br from-balance-from to-balance-to py-5 text-balance-foreground ring-0">
-      <CardContent className="flex flex-col gap-6">
+    <Card className="gap-0 rounded-2xl border-0 bg-linear-to-br from-balance-from to-balance-to py-5 text-balance-foreground ring-0 lg:py-3">
+      <CardContent className="flex flex-col gap-6 lg:gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-1">

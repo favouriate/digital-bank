@@ -20,7 +20,7 @@ export function AppHeader({ user }: AppHeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-card shadow-xs dark:shadow-none">
-      <div className="mx-auto flex w-full max-w-content flex-col gap-1 px-page-mobile pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 md:px-page-tablet lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:px-page-desktop lg:py-2.5">
+      <div className="mx-auto flex w-full max-w-content flex-col gap-1 px-page-mobile pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 md:px-page-tablet lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:px-page-desktop lg:py-2">
         <div className="flex items-center justify-between gap-2 lg:contents">
           <div className="flex min-w-0 items-center gap-1 lg:order-1">
             <AppLogo className="lg:hidden [&_span:first-child]:size-7" />

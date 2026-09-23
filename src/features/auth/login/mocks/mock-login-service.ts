@@ -11,9 +11,10 @@ function wait(ms: number) {
 }
 
 export async function mockLogin(
-  _credentials: LoginCredentials,
+  credentials: LoginCredentials,
 ): Promise<LoginResult> {
-  await wait(450);
+  void credentials;
+  await wait(1_000);
 
   return { userId: mockUser.id };
 }

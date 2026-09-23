@@ -10,6 +10,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { useTransferBanksQuery } from "../hooks/use-transfer-banks-query";
 import { useTransferDestinationsQuery } from "../hooks/use-transfer-destinations-query";
 import { useRecipientLookupQuery } from "../hooks/use-recipient-lookup-query";
@@ -34,6 +35,7 @@ type SendMoneyRecipientFormProps = {
   initialBankId?: string | null;
   initialAccountNumber?: string | null;
   continueLabel?: string;
+  compact?: boolean;
 };
 
 export function SendMoneyRecipientForm({
@@ -42,6 +44,7 @@ export function SendMoneyRecipientForm({
   initialBankId = null,
   initialAccountNumber = "",
   continueLabel = "Continue",
+  compact = false,
 }: SendMoneyRecipientFormProps) {
   const destinationsQuery = useTransferDestinationsQuery();
   const destinations = destinationsQuery.data ?? [];
@@ -128,8 +131,8 @@ export function SendMoneyRecipientForm({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="space-y-2">
+    <div className={cn("flex flex-col gap-4", compact && "lg:gap-3")}>
+      <div className={cn("space-y-2", compact && "lg:space-y-1")}>
         <Label htmlFor="destination-country">Country / currency</Label>
         <DestinationCombobox
           id="destination-country"
@@ -143,7 +146,7 @@ export function SendMoneyRecipientForm({
           onChange={handleDestinationChange}
         />
       </div>
-      <div className="space-y-2">
+      <div className={cn("space-y-2", compact && "lg:space-y-1")}>
         <Label htmlFor="destination-bank">Bank</Label>
         <BankCombobox
           id="destination-bank"
@@ -159,9 +162,9 @@ export function SendMoneyRecipientForm({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className={cn("space-y-2", compact && "lg:space-y-1")}>
         <Label htmlFor="destination-account">Account number</Label>
-        <InputGroup className="h-12 min-h-11">
+        <InputGroup className={cn("h-12 min-h-11", compact && "lg:h-11")}>
           <InputGroupInput
             id="destination-account"
             inputMode="numeric"
@@ -186,7 +189,10 @@ export function SendMoneyRecipientForm({
 
       <div
         id="destination-account-hint"
-        className="flex gap-2 rounded-xl bg-accent px-3 py-3 text-sm text-accent-foreground"
+        className={cn(
+          "flex gap-2 rounded-xl bg-accent px-3 py-3 text-sm text-accent-foreground",
+          compact && "lg:py-2",
+        )}
       >
         <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         <p>We&apos;ll find the account details and confirm the recipient.</p>
@@ -235,7 +241,10 @@ export function SendMoneyRecipientForm({
 
       <Button
         type="button"
-        className="h-12 min-h-12 w-full rounded-xl text-base"
+        className={cn(
+          "h-12 min-h-12 w-full rounded-xl text-base",
+          compact && "lg:h-11 lg:min-h-11",
+        )}
         disabled={!canContinue}
         title={
           canContinue

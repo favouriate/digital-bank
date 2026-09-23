@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import {
+  creditAvailableBalance,
   debitAvailableBalance,
   getAvailableBalanceMinor,
   mockAccountSummary,
@@ -80,6 +81,21 @@ export function commitDemoTransfer(transaction: Transaction, totalDebitMinor: nu
   const transactions = [...mockTransactions];
   try {
     debitAvailableBalance(totalDebitMinor / 100);
+    mockTransactions.unshift(transaction);
+    persistDemoLedger();
+  } catch (error) {
+    mockAccountSummary.availableBalance = balance;
+    replaceTransactions(transactions);
+    throw error;
+  }
+}
+
+/** One synchronous mock operation; persistence failure rolls back both changes. */
+export function commitDemoDeposit(transaction: Transaction, totalCreditMinor: number) {
+  const balance = mockAccountSummary.availableBalance;
+  const transactions = [...mockTransactions];
+  try {
+    creditAvailableBalance(totalCreditMinor / 100);
     mockTransactions.unshift(transaction);
     persistDemoLedger();
   } catch (error) {

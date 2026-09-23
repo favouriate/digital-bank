@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, LayoutGrid, ArrowDownLeft, Send } from "lucide-react";
+import { LayoutGrid, ArrowDownLeft, Plus, Send } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -17,9 +17,9 @@ const actions = [
     tone: "bg-success/10 text-success",
   },
   {
-    href: "/invoices",
-    label: "Invoices",
-    icon: FileText,
+    href: "/add-money",
+    label: "Add Money",
+    icon: Plus,
     tone: "bg-warning/10 text-warning",
   },
   {

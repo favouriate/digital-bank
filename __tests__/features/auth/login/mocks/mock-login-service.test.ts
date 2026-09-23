@@ -16,8 +16,14 @@ describe("mockLogin", () => {
       password: "whatever",
       rememberMe: false,
     });
+    let settled = false;
+    void promise.then(() => {
+      settled = true;
+    });
 
-    await jest.advanceTimersByTimeAsync(450);
+    await jest.advanceTimersByTimeAsync(999);
+    expect(settled).toBe(false);
+    await jest.advanceTimersByTimeAsync(1);
 
     await expect(promise).resolves.toEqual({ userId: mockUser.id });
   });

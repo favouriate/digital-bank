@@ -23,7 +23,7 @@ type QuickTransferProps = {
 };
 
 const itemClassName =
-  "flex min-h-11 w-[6.25rem] flex-col items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-card lg:w-24";
+  "flex min-h-11 w-[6.25rem] flex-col items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-card lg:w-24 lg:gap-1";
 
 const avatarClassName = "size-14 after:hidden lg:size-12";
 
@@ -31,7 +31,7 @@ export function QuickTransfer({ recipients }: QuickTransferProps) {
   const startTransfer = useStartTransfer();
 
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl lg:py-3 lg:[--card-spacing:--spacing(3)]">
       <CardHeader className="gap-1">
         <CardTitle className="text-base font-semibold lg:text-lg">
           Quick Transfer

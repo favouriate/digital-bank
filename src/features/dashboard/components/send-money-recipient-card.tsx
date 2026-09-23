@@ -18,7 +18,7 @@ export function SendMoneyRecipientCard() {
   const startTransfer = useStartTransfer();
 
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl lg:py-3 lg:[--card-spacing:--spacing(3)]">
       <CardHeader className="gap-1">
         <CardTitle className="text-lg font-semibold">Send Money</CardTitle>
         <CardAction>
@@ -35,6 +35,7 @@ export function SendMoneyRecipientCard() {
       </CardHeader>
       <CardContent>
         <SendMoneyRecipientForm
+          compact
           onContinue={({ resolvedRecipient, accountNumber }) => {
             startTransfer({ resolvedRecipient, accountNumber });
           }}

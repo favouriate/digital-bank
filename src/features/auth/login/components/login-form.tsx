@@ -14,7 +14,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +26,6 @@ import {
   loginSchema,
   type LoginFormValues,
 } from "../schemas/login-schema";
-import { LoginSocialButtons } from "./login-social-buttons";
 
 const REMEMBERED_EMAIL_KEY = "openpay.remembered-email";
 
@@ -58,10 +56,6 @@ export function LoginForm() {
 
   const isSubmitting = loginMutation.isPending;
 
-  function handleUnavailableSocial() {
-    setAuthError("Social sign-in is not available yet.");
-  }
-
   async function onSubmit(values: LoginFormValues) {
     setAuthError(null);
 
@@ -91,7 +85,7 @@ export function LoginForm() {
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex w-full flex-col"
     >
-      <div className="mb-8">
+      <div className="mb-5">
         <h2 className="text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">
           Welcome back
         </h2>
@@ -110,7 +104,7 @@ export function LoginForm() {
         </div>
       ) : null}
 
-      <FieldGroup className="gap-5">
+      <FieldGroup className="gap-4">
         <Field data-invalid={!!form.formState.errors.email}>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <div className="relative">
@@ -207,11 +201,15 @@ export function LoginForm() {
           disabled={isSubmitting}
           aria-busy={isSubmitting}
           className="h-12 min-h-12 w-full rounded-lg text-base"
+          onClick={(event) => {
+            event.preventDefault();
+            void form.handleSubmit(onSubmit)();
+          }}
         >
           {isSubmitting ? (
             <>
               <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-              Logging in
+              Logging in…
             </>
           ) : (
             "Log In"
@@ -219,14 +217,7 @@ export function LoginForm() {
         </Button>
       </FieldGroup>
 
-      <FieldSeparator className="my-6">or continue with</FieldSeparator>
-
-      <LoginSocialButtons
-        disabled={isSubmitting}
-        onUnavailable={handleUnavailableSocial}
-      />
-
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="mt-5 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Link href="/register" className="font-medium text-primary hover:underline">
           Sign up

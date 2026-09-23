@@ -48,6 +48,15 @@ export function debitAvailableBalance(usdAmount: number) {
   return mockAccountSummary.availableBalance;
 }
 
+export function creditAvailableBalance(usdAmount: number) {
+  const credit = toUsdMinor(usdAmount);
+  if (availableBalanceMinor + credit > Number.MAX_SAFE_INTEGER) {
+    throw new Error("Balance exceeds the supported range.");
+  }
+  availableBalanceMinor += credit;
+  return mockAccountSummary.availableBalance;
+}
+
 export function resetAvailableBalance() {
   mockAccountSummary.availableBalance = INITIAL_AVAILABLE_BALANCE;
 }
