@@ -49,10 +49,6 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyMeta> = {
   },
 };
 
-export const DISPLAY_CURRENCIES: CurrencyMeta[] = CURRENCY_CODES.map(
-  (code) => CURRENCIES[code],
-);
-
 const formatters = new Map<CurrencyCode, Intl.NumberFormat>();
 
 export function isCurrencyCode(value: string | null | undefined): value is CurrencyCode {

@@ -51,7 +51,7 @@ export function AccountInformationList({ profile }: { profile: Profile }) {
       />
       <SettingRow
         label="Currency"
-        value={displayValue(profile.account.currency)}
+        value="NGN"
       />
     </div>
   );

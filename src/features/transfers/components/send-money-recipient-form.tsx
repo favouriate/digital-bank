@@ -12,26 +12,22 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useTransferBanksQuery } from "../hooks/use-transfer-banks-query";
-import { useTransferDestinationsQuery } from "../hooks/use-transfer-destinations-query";
 import { useRecipientLookupQuery } from "../hooks/use-recipient-lookup-query";
 import { isValidAccountNumber, getAccountNumberMaxLength, createAccountNumberSchema } from "../schemas/account-number-schema";
 import type {
   DestinationCountryCode,
   ResolvedRecipient,
   TransferBank,
-  TransferDestination,
 } from "../types/destination";
-import { isDestinationCountryCode, RecipientLookupError } from "../types/destination";
+import { RecipientLookupError } from "../types/destination";
 
 import { BankCombobox } from "./bank-combobox";
-import { DestinationCombobox } from "./destination-combobox";
 
 type SendMoneyRecipientFormProps = {
   onContinue: (payload: {
     resolvedRecipient: ResolvedRecipient;
     accountNumber: string;
   }) => void;
-  initialCountryCode?: string | null;
   initialBankId?: string | null;
   initialAccountNumber?: string | null;
   continueLabel?: string;
@@ -40,31 +36,21 @@ type SendMoneyRecipientFormProps = {
 
 export function SendMoneyRecipientForm({
   onContinue,
-  initialCountryCode = null,
   initialBankId = null,
   initialAccountNumber = "",
   continueLabel = "Continue",
   compact = false,
 }: SendMoneyRecipientFormProps) {
-  const destinationsQuery = useTransferDestinationsQuery();
-  const destinations = destinationsQuery.data ?? [];
-
-  const [countryCode, setCountryCode] = useState<DestinationCountryCode | null>(
-    () => (isDestinationCountryCode(initialCountryCode) ? initialCountryCode : null),
-  );
+  const countryCode: DestinationCountryCode = "NG";
   const [bankId, setBankId] = useState<string | null>(initialBankId);
   const [accountNumber, setAccountNumber] = useState(initialAccountNumber ?? "");
 
   const banksQuery = useTransferBanksQuery(countryCode);
   const banks = banksQuery.data ?? [];
 
-  const selectedDestination =
-    destinations.find((destination) => destination.countryCode === countryCode) ??
-    null;
   const selectedBank = banks.find((bank) => bank.id === bankId) ?? null;
 
   const lookupEnabled =
-    countryCode !== null &&
     Boolean(bankId) &&
     isValidAccountNumber(countryCode, accountNumber.trim());
 
@@ -87,7 +73,7 @@ export function SendMoneyRecipientForm({
   }, [lookupEnabled, lookupQuery.error, lookupQuery.isError]);
 
   const formatErrorMessage = useMemo(() => {
-    if (!countryCode || !bankId) {
+    if (!bankId) {
       return null;
     }
 
@@ -108,12 +94,6 @@ export function SendMoneyRecipientForm({
     lookupEnabled && lookupQuery.isSuccess ? lookupQuery.data : null;
   const canContinue = Boolean(resolved) && !lookupQuery.isFetching;
 
-  function handleDestinationChange(destination: TransferDestination) {
-    setCountryCode(destination.countryCode);
-    setBankId(null);
-    setAccountNumber("");
-  }
-
   function handleBankChange(bank: TransferBank) {
     setBankId(bank.id);
     setAccountNumber("");
@@ -133,28 +113,13 @@ export function SendMoneyRecipientForm({
   return (
     <div className={cn("flex flex-col gap-4", compact && "lg:gap-3")}>
       <div className={cn("space-y-2", compact && "lg:space-y-1")}>
-        <Label htmlFor="destination-country">Country / currency</Label>
-        <DestinationCombobox
-          id="destination-country"
-          destinations={destinations}
-          value={selectedDestination}
-          isLoading={destinationsQuery.isPending}
-          isError={destinationsQuery.isError}
-          onRetry={() => {
-            void destinationsQuery.refetch();
-          }}
-          onChange={handleDestinationChange}
-        />
-      </div>
-      <div className={cn("space-y-2", compact && "lg:space-y-1")}>
         <Label htmlFor="destination-bank">Bank</Label>
         <BankCombobox
           id="destination-bank"
           banks={banks}
           value={selectedBank}
-          disabled={countryCode === null}
-          isLoading={countryCode !== null && banksQuery.isPending}
-          isError={countryCode !== null && banksQuery.isError}
+          isLoading={banksQuery.isPending}
+          isError={banksQuery.isError}
           onRetry={() => {
             void banksQuery.refetch();
           }}
@@ -171,10 +136,8 @@ export function SendMoneyRecipientForm({
             autoComplete="off"
             placeholder="Enter account number"
             value={accountNumber}
-            disabled={countryCode === null || bankId === null}
-            maxLength={
-              countryCode ? getAccountNumberMaxLength(countryCode) : 17
-            }
+            disabled={bankId === null}
+            maxLength={getAccountNumberMaxLength(countryCode)}
             aria-invalid={Boolean(lookupErrorMessage || formatErrorMessage)}
             aria-describedby="destination-account-hint"
             onChange={(event) => {

@@ -24,9 +24,6 @@ export function SendMoneyCompose({ data }: SendMoneyComposeProps) {
     (state) => state.resolvedRecipient,
   );
   const recipientId = useTransferDraftStore((state) => state.recipientId);
-  const draftCountry = useTransferDraftStore(
-    (state) => state.destinationCountryCode,
-  );
   const draftBankId = useTransferDraftStore((state) => state.bankId);
   const draftAccountNumber = useTransferDraftStore(
     (state) => state.accountNumber,
@@ -59,7 +56,7 @@ export function SendMoneyCompose({ data }: SendMoneyComposeProps) {
           Send Money
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Send money to anyone, anywhere in the world.
+          Send money to any Nigerian bank account.
         </p>
       </div>
 
@@ -72,10 +69,9 @@ export function SendMoneyCompose({ data }: SendMoneyComposeProps) {
               1. Recipient
             </h2>
             <p className="mt-0.5 mb-4 text-sm text-muted-foreground">
-              Choose a country, bank, and account number.
+              Choose a bank and enter an account number.
             </p>
             <SendMoneyRecipientForm
-              initialCountryCode={draftCountry}
               initialBankId={draftBankId}
               initialAccountNumber={draftAccountNumber}
               onContinue={({

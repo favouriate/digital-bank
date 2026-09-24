@@ -12,7 +12,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
 
 export function formatAddMoneyAmount(
   amount: number,
-  currency: CurrencyCode = "USD",
+  currency: CurrencyCode = "NGN",
 ) {
   return formatMoney(amount, currency);
 }

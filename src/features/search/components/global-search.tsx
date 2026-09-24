@@ -316,7 +316,7 @@ function TransactionResults({
                 isIncoming ? "text-success" : "text-foreground",
               )}
             >
-              {formatAmount(transaction.amount, transaction.currency)}
+              {formatAmount(transaction.amount, "NGN")}
             </span>
           </CommandItem>
         );

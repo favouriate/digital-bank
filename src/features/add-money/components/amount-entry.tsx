@@ -1,6 +1,5 @@
 "use client";
 
-import { CurrencySelect } from "@/components/currency-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ type AmountEntryProps = {
   currency: CurrencyCode;
   error: string | null;
   onChange: (value: string) => void;
-  onCurrencyChange: (currency: CurrencyCode) => void;
   onSelectQuickAmount: (amount: number) => void;
 };
 
@@ -30,7 +28,6 @@ export function AmountEntry({
   currency,
   error,
   onChange,
-  onCurrencyChange,
   onSelectQuickAmount,
 }: AmountEntryProps) {
   return (
@@ -45,12 +42,9 @@ export function AmountEntry({
             "border-destructive focus-within:border-destructive focus-within:ring-destructive/20",
         )}
       >
-        <CurrencySelect
-          value={currency}
-          onChange={onCurrencyChange}
-          triggerClassName="h-12 min-h-11 shrink-0 gap-1 px-2 font-semibold"
-          ariaLabel={`Add money currency ${currency}. Change currency`}
-        />
+        <span className="shrink-0 px-2 text-xl font-semibold" aria-hidden="true">
+          ₦
+        </span>
         <Input
           id="add-money-amount"
           inputMode="decimal"

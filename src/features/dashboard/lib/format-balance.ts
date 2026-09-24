@@ -4,7 +4,7 @@ import type { CurrencyCode } from "@/types/currency";
 export function formatBalance(
   amount: number,
   visible: boolean,
-  currency: CurrencyCode = "USD",
+  currency: CurrencyCode = "NGN",
 ) {
   if (!visible) {
     return "••••••";

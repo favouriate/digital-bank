@@ -1,5 +1,5 @@
 import { createElement } from "react";
-import { act, cleanup, render, renderHook } from "@testing-library/react";
+import { cleanup, render } from "@testing-library/react";
 import { mockSendTransfer, resetTransferMocks } from "@/features/transfers/mocks/mock-transfer-service";
 import { getAvailableBalanceMinor } from "@/features/dashboard/mocks/mock-account";
 import { mockTransactions } from "@/mocks/transactions";
@@ -8,7 +8,6 @@ import { RecentTransactions } from "@/features/dashboard/components/recent-trans
 import { TransactionHistoryTable } from "@/features/transactions/components/transaction-history-table";
 import { TransactionHistoryList } from "@/features/transactions/components/transaction-history-list";
 import { TransactionDetailsSummary } from "@/features/transactions/components/transaction-details-summary";
-import { useDisplayCurrency } from "@/features/dashboard/hooks/use-display-currency";
 import { formatMoney } from "@/lib/currency";
 import type { CurrencyCode } from "@/types/currency";
 import type { TransferRequest } from "@/features/transfers/types/transfer";
@@ -41,24 +40,21 @@ it.each(cases)("preserves %s %s while settling %s USD cents", async (currency, a
   expect(getAvailableBalanceMinor()).toBe(1068000 - debit);
 });
 
-it("renders a mixed list consistently regardless of dashboard display preference", async () => {
+it("renders transaction surfaces in NGN regardless of stored transaction currency", async () => {
   for (const [currency, amount] of cases.slice(0, 3)) await send(request(currency, amount));
   const transactions = mockTransactions.slice(0, 3);
-  const { result } = renderHook(() => useDisplayCurrency("USD"));
-  act(() => result.current.setDisplayCurrency("CAD"));
-  expect(result.current.displayCurrency).toBe("CAD");
   for (const Component of [RecentTransactions, TransactionHistoryTable, TransactionHistoryList]) {
     const view = render(createElement(Component, { transactions }));
     for (const transaction of transactions) {
-      expect(view.getByText(`-${formatMoney(Math.abs(transaction.amount), transaction.currency)}`)).toBeInTheDocument();
-      expect(view.getByText(transaction.currency)).toBeInTheDocument();
+      expect(view.getByText(`-${formatMoney(Math.abs(transaction.amount), "NGN")}`)).toBeInTheDocument();
     }
+    expect(view.getAllByText("NGN")).toHaveLength(transactions.length);
     view.unmount();
   }
   for (const transaction of transactions) {
     const view = render(createElement(TransactionDetailsSummary, { transaction }));
-    expect(view.getByText(`-${formatMoney(Math.abs(transaction.amount), transaction.currency)}`)).toBeInTheDocument();
-    expect(view.getByText(transaction.currency)).toBeInTheDocument();
+    expect(view.getByText(`-${formatMoney(Math.abs(transaction.amount), "NGN")}`)).toBeInTheDocument();
+    expect(view.getByText("NGN")).toBeInTheDocument();
     view.unmount();
   }
 });

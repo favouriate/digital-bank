@@ -1,8 +1,8 @@
 import { formatBalance, formatSignedChange } from "@/features/dashboard/lib/format-balance";
 
 describe("formatBalance", () => {
-  it("formats a visible USD balance", () => {
-    expect(formatBalance(10680, true)).toBe("$10,680.00");
+  it("formats a visible NGN balance", () => {
+    expect(formatBalance(10680, true)).toBe("₦10,680.00");
   });
 
   it("formats a visible NGN balance", () => {

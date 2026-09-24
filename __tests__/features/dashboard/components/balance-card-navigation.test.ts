@@ -22,8 +22,7 @@ it("offers Transactions instead of More, without wallet navigation or changing o
     expect(view.queryByRole("button", { name: "More" })).not.toBeInTheDocument();
     expect(view.getByRole("link", { name: "Transactions" })).toHaveAttribute("href", "/transactions");
     expect(view.getByRole("link", { name: "Receive" })).toHaveAttribute("href", "/transactions?type=receive");
-    expect(view.getByText("$10,680.00")).toBeInTheDocument();
-    expect(view.getByRole("button", { name: "Balance currency USD. Change display currency" })).toBeInTheDocument();
+    expect(view.getByText("₦10,680.00")).toBeInTheDocument();
     fireEvent.click(view.getByRole("button", { name: "Hide balance" }));
     expect(onToggleVisibility).toHaveBeenCalledTimes(1);
     fireEvent.click(view.getByRole("button", { name: "Send Money" }));

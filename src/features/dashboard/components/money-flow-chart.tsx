@@ -101,7 +101,7 @@ export function MoneyFlowChart({ series, compact = false }: MoneyFlowChartProps)
                       </span>
                       <span className="font-medium">
                         {typeof value === "number"
-                          ? `$${value.toLocaleString("en-US")}`
+                          ? `₦${value.toLocaleString("en-NG")}`
                           : value}
                       </span>
                     </div>

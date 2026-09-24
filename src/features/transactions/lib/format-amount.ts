@@ -1,7 +1,7 @@
 import { formatMoney as formatCurrency } from "@/lib/currency";
 import type { CurrencyCode } from "@/types/currency";
 
-export function formatSignedAmount(amount: number, currency: CurrencyCode = "USD") {
+export function formatSignedAmount(amount: number, currency: CurrencyCode = "NGN") {
   const formatted = formatCurrency(Math.abs(amount), currency);
 
   if (amount > 0) {
@@ -15,11 +15,11 @@ export function formatSignedAmount(amount: number, currency: CurrencyCode = "USD
   return formatted;
 }
 
-export function formatMoney(amount: number, currency: CurrencyCode = "USD") {
+export function formatMoney(amount: number, currency: CurrencyCode = "NGN") {
   return formatCurrency(Math.abs(amount), currency);
 }
 
-export function formatCurrencyAmount(amount: number, currency: CurrencyCode = "USD") {
+export function formatCurrencyAmount(amount: number, currency: CurrencyCode = "NGN") {
   return `${formatMoney(amount, currency)} ${currency}`;
 }
 

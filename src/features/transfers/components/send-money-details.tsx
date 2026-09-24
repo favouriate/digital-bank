@@ -31,7 +31,7 @@ type SendMoneyDetailsProps = {
 export function SendMoneyDetails({
   recipient,
   amount,
-  currency = "USD",
+  currency = "NGN",
   error,
   onBack,
   onContinue,

@@ -11,8 +11,7 @@ function renderEntry(value = "") {
     createElement(AmountEntry, {
       value,
       error: null,
-      currencyCode: "ZAR",
-      countryCode: "ZA",
+      currencyCode: "NGN",
       destAvailableBalance: 127_464.25,
       usdAvailableBalance: 7_003.53,
       onChange,
@@ -27,18 +26,20 @@ it("renders accessible quick amounts in normal flow and disables browser autocom
   expect(input).toHaveAttribute("autocomplete", "off");
   expect(view.getByLabelText("Quick amounts")).toHaveClass("overflow-x-auto");
 
-  for (const amount of getQuickAmounts("ZAR")) {
-    const label = formatTransferAmount(amount, "ZAR");
+  for (const amount of getQuickAmounts("NGN")) {
+    const label = formatTransferAmount(amount, "NGN");
     expect(view.getByRole("button", { name: `Set amount to ${label}` })).toBeInTheDocument();
   }
 });
 
 it("sets the input value from a chip and marks the matching chip selected", () => {
-  const amount = getQuickAmounts("ZAR")[2];
-  const label = formatTransferAmount(amount, "ZAR");
-  const view = renderEntry("5,000.00");
+  const amount = getQuickAmounts("NGN")[2];
+  const label = formatTransferAmount(amount, "NGN");
+  const view = renderEntry(amount.toLocaleString("en-US", { minimumFractionDigits: 2 }));
   const chip = view.getByRole("button", { name: `Set amount to ${label}` });
   expect(chip).toHaveAttribute("aria-pressed", "true");
   fireEvent.click(chip);
-  expect(view.onChange).toHaveBeenCalledWith("5,000.00");
+  expect(view.onChange).toHaveBeenCalledWith(
+    amount.toLocaleString("en-US", { minimumFractionDigits: 2 }),
+  );
 });
