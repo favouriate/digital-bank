@@ -83,7 +83,7 @@ export function SendMoneyReview({
                 <span className="text-right font-medium">
                   OpenPay balance
                   <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                    USD
+                    NGN
                   </span>
                 </span>
               </div>

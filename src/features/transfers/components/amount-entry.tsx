@@ -1,29 +1,18 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import type { CountryCode, CurrencyCode } from "@/types/currency";
+import type { CurrencyCode } from "@/types/currency";
 
 import { formatAmountInput, formatTransferAmount } from "../lib/format";
 import { getQuickAmounts } from "../lib/quick-amounts";
 
-import { CountryFlag } from "./country-flag";
 
 type AmountEntryProps = {
   value: string;
   error: string | null;
   currencyCode: CurrencyCode;
-  countryCode: CountryCode;
   destAvailableBalance: number;
   usdAvailableBalance: number;
   onChange: (value: string) => void;
@@ -33,12 +22,9 @@ export function AmountEntry({
   value,
   error,
   currencyCode,
-  countryCode,
   destAvailableBalance,
-  usdAvailableBalance,
   onChange,
 }: AmountEntryProps) {
-  const showUsdTranslation = currencyCode !== "USD";
   const selectedAmount = Number(value.replace(/[^\d.]/g, ""));
 
   return (
@@ -90,27 +76,6 @@ export function AmountEntry({
           );
         })}
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              type="button"
-              variant="ghost"
-              className="mt-1 h-11 min-h-11 gap-2 px-3 font-semibold"
-            />
-          }
-        >
-          <CountryFlag countryCode={countryCode} />
-          {currencyCode}
-          <ChevronDown className="size-4" aria-hidden="true" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="center">
-          <DropdownMenuItem>
-            <CountryFlag countryCode={countryCode} />
-            {currencyCode}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
       {error ? (
         <p
           id="send-money-amount-error"
@@ -127,12 +92,6 @@ export function AmountEntry({
               {formatTransferAmount(destAvailableBalance, currencyCode)}
             </span>
           </p>
-          {showUsdTranslation ? (
-            <p className="mt-1 text-xs text-muted-foreground">
-              ≈ {formatTransferAmount(usdAvailableBalance, "USD")} USD — this is
-              your OpenPay balance in this currency
-            </p>
-          ) : null}
         </div>
       )}
     </section>

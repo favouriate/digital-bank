@@ -99,7 +99,6 @@ export function SendMoneyAmount({
           value={value}
           error={displayError}
           currencyCode={currencyCode}
-          countryCode={recipient.countryCode}
           destAvailableBalance={destAvailableBalance}
           usdAvailableBalance={data.availableBalance}
           onChange={(next) => {

@@ -42,10 +42,10 @@ export function TransactionDetailsSummary({
             transactionAmountClassName(transaction),
           )}
         >
-          {formatSignedAmount(transaction.amount, transaction.currency)}
+          {formatSignedAmount(transaction.amount, "NGN")}
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
-          {transaction.currency}
+          NGN
         </p>
       </div>
       <TransactionStatusBadge status={transaction.status} />

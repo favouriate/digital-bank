@@ -20,7 +20,7 @@ type ReviewCardProps = {
 export function ReviewCard({
   method,
   amount,
-  currency = "USD",
+  currency = "NGN",
   collapsible = false,
   expanded = true,
   onToggle,

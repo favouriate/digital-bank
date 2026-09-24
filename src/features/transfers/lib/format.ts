@@ -3,7 +3,7 @@ import type { CurrencyCode } from "@/types/currency";
 
 export function formatTransferAmount(
   amount: number,
-  currency: CurrencyCode = "USD",
+  currency: CurrencyCode = "NGN",
 ) {
   return formatMoney(amount, currency);
 }

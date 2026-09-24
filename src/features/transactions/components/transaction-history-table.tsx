@@ -121,11 +121,11 @@ export function TransactionHistoryTable({
                   >
                     {formatSignedAmount(
                       transaction.amount,
-                      transaction.currency,
+                      "NGN",
                     )}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {transaction.currency}
+                    NGN
                   </span>
                 </RowLink>
               </TableCell>

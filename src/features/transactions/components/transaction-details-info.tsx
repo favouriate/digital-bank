@@ -89,9 +89,9 @@ export function TransactionDetailsInfo({
               transactionAmountClassName(transaction),
             )}
           >
-            {formatSignedAmount(transaction.amount, transaction.currency)}{" "}
+            {formatSignedAmount(transaction.amount, "NGN")}{" "}
             <span className="text-sm font-medium text-muted-foreground">
-              {transaction.currency}
+              NGN
             </span>
           </p>
         </div>
@@ -121,9 +121,9 @@ export function TransactionDetailsInfo({
               incoming ? "text-success" : "text-foreground",
             )}
           >
-            {formatSignedAmount(transaction.amount, transaction.currency)}
+            {formatSignedAmount(transaction.amount, "NGN")}
           </p>
-          <p className="text-xs text-muted-foreground">{transaction.currency}</p>
+          <p className="text-xs text-muted-foreground">NGN</p>
         </div>
       </div>
 
@@ -135,7 +135,7 @@ export function TransactionDetailsInfo({
           {formatTransactionDateTime(transaction.occurredAt)}
         </DetailRow>
         <DetailRow label="Amount">
-          {formatCurrencyAmount(transaction.amount, transaction.currency)}
+          {formatCurrencyAmount(transaction.amount, "NGN")}
         </DetailRow>
         <DetailRow label={partyRowLabel(kind)}>
           <span className="inline-flex items-center justify-end gap-2">
@@ -157,7 +157,7 @@ export function TransactionDetailsInfo({
           {transaction.note?.trim() || "—"}
         </DetailRow>
         <DetailRow label="Fees">
-          {formatMoney(transaction.fee ?? 0, transaction.currency)}
+          {formatMoney(transaction.fee ?? 0, "NGN")}
         </DetailRow>
         <DetailRow label="Status">
           <TransactionStatusBadge status={transaction.status} />

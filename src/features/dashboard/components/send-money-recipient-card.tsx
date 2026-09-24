@@ -30,7 +30,7 @@ export function SendMoneyRecipientCard() {
           </Link>
         </CardAction>
         <CardDescription>
-          Send to any bank account in your preferred country.
+          Send to any Nigerian bank account.
         </CardDescription>
       </CardHeader>
       <CardContent>

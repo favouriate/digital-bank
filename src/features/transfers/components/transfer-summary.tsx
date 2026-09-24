@@ -2,7 +2,6 @@ import { ArrowRight, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getMockRate } from "@/features/dashboard/mocks/mock-exchange-rates";
 import type { CurrencyCode } from "@/types/currency";
 
 import { formatTransferAmount } from "../lib/format";
@@ -20,13 +19,12 @@ type TransferSummaryProps = {
 export function TransferSummary({
   recipient,
   amount,
-  currency = "USD",
+  currency = "NGN",
   onContinue,
   continueDisabled = false,
   continueLabel = "Continue",
 }: TransferSummaryProps) {
   const total = amount ?? 0;
-  const rate = getMockRate("USD", currency);
 
   return (
     <Card>
@@ -72,10 +70,6 @@ export function TransferSummary({
           <p className="text-sm text-muted-foreground">Select a recipient</p>
         )}
         <div className="flex flex-col gap-2 border-t border-border pt-3 text-sm">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-muted-foreground">Exchange Rate</span>
-            <span>1 USD = {formatTransferAmount(rate, currency)}</span>
-          </div>
           <div className="flex items-center justify-between gap-3">
             <span className="text-muted-foreground">Transfer Fee</span>
             <span className="font-medium text-success">

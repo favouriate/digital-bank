@@ -46,7 +46,7 @@ export function RecentDeposits({ deposits }: RecentDepositsProps) {
                 </div>
                 <div className="ml-auto flex shrink-0 items-center gap-2">
                   <p className="text-sm font-semibold">
-                    {formatAddMoneyAmount(deposit.amount, deposit.currency)}
+                    {formatAddMoneyAmount(deposit.amount, "NGN")}
                   </p>
                   <TransactionStatusBadge status={deposit.status} />
                   <ChevronRight

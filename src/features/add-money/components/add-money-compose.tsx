@@ -28,7 +28,6 @@ export function AddMoneyCompose({ data }: AddMoneyComposeProps) {
   const setMethodId = useAddMoneyDraftStore((state) => state.setMethodId);
   const setAmountInput = useAddMoneyDraftStore((state) => state.setAmountInput);
   const setParsedAmount = useAddMoneyDraftStore((state) => state.setParsedAmount);
-  const setCurrency = useAddMoneyDraftStore((state) => state.setCurrency);
   const setStep = useAddMoneyDraftStore((state) => state.setStep);
   const [error, setError] = useState<string | null>(null);
   const [reviewOpen, setReviewOpen] = useState(true);
@@ -91,7 +90,6 @@ export function AddMoneyCompose({ data }: AddMoneyComposeProps) {
               setAmountInput(next);
               setError(null);
             }}
-            onCurrencyChange={setCurrency}
             onSelectQuickAmount={(next) => {
               setParsedAmount(next);
               setError(null);

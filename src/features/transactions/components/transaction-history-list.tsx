@@ -68,11 +68,11 @@ export function TransactionHistoryList({
                   >
                     {formatSignedAmount(
                       transaction.amount,
-                      transaction.currency,
+                      "NGN",
                     )}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {transaction.currency}
+                    NGN
                   </span>
                 </span>
                 <ChevronRight
